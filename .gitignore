@@ -1,0 +1,11 @@
+.DS_Store
+.cache/
+.nova/
+CMakeCache.txt
+CMakeFiles/*
+ConspicuousFishing.pdx
+Makefile
+Source/*
+cmake_install.cmake
+compile_commands.json
+*.dylib
