@@ -43,6 +43,12 @@ void vec2d_scale(const Vec2D* operand, const float scale, Vec2D* out) {
 	out->y = scale * operand->y;
 }
 
+Vec2D* vec2d_copy(const Vec2D* src) {
+	Vec2D* vec2_ptr = (Vec2D*) malloc(sizeof(Vec2D));
+	vec2_ptr->x = src->x;
+	vec2_ptr->y = src->y;
+	return vec2_ptr;
+}
 #endif
 
 
