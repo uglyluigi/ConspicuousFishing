@@ -13,6 +13,7 @@
 #include "fish.c"
 #include "bubble.c"
 #include "util.c"
+#include "fish_hook.c"
 
 static int update(void* userdata);
 const char* fontpath = "/System/Fonts/Asheville-Sans-14-Bold.pft";
@@ -39,6 +40,8 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
 			pd->system->error("%s:%i Couldn't load font %s: %s", __FILE__, __LINE__, fontpath, err);
 			
 		pd->system->resetElapsedTime();
+		
+		init_hook(pd);
 
 		// Note: If you set an update callback in the kEventInit handler, the system assumes the game is pure C and doesn't run any Lua code in the game
 		pd->system->setUpdateCallback(update, pd);
@@ -51,10 +54,19 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
 	return 0;
 }
 
+static float prev_time = 0;
+
+// delta time (in s)
+static float dt = 0;
+
 static int update(void* userdata)
 {
 	PlaydateAPI* pd = userdata;
 	
+	// setup delta time
+	dt = 0.001f * (pd->system->getCurrentTimeMilliseconds() - prev_time);
+	prev_time = pd->system->getCurrentTimeMilliseconds();
+		
 	pd->graphics->clear(kColorWhite);
 	pd->graphics->setFont(font);
 	//pd->graphics->drawText("Hello World!", strlen("Hello World!"), kASCIIEncoding, x, y);
@@ -62,8 +74,10 @@ static int update(void* userdata)
 	pd->sprite->drawSprites();
 	pd->system->drawFPS(0,0);
 	
-	fish_tick(pd, fishes, MAX_FISH);
-	do_bubble_ticks(pd);
+	fish_tick(pd, dt, fishes, MAX_FISH);
+	do_bubble_ticks(pd, dt);
+	
+	do_fish_hook_ticks(pd, dt, player);
 
 	return 1;
 }

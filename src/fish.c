@@ -12,8 +12,6 @@
 #include "util.c"
 #include "bubble.c"
 
-#define DRAW_HITBOXES true
-
 enum FishDirection {
 	FacingLeft,
 	FacingRight
@@ -55,7 +53,7 @@ typedef struct {
 } FishEntity;
 
 const char* get_sprite_for_fish_type(enum FishType type) {
-	return "img/goldfish.png";
+	return "img/moorish_idol.png";
 }
 
 static int id_pool = 0;
@@ -71,10 +69,10 @@ FishEntity* alloc_fish( PlaydateAPI* pd, const char* sprite_path ) {
 		
 	fish->id = id_pool;
 	id_pool++;
-	fish->max_velocity = vec2d_new(1.0f, 0.0f);
+	fish->max_velocity = vec2d_new(100.0f, 0.0f);
 	fish->clamp_velocity_x = true;
 	fish->clamp_velocity_y = true;
-	fish->velocity = vec2d_new(1.0f, 0.0f);
+	fish->velocity = vec2d_new(100.0f, 0.0f);
 	fish->acceleration = vec2d_new(0.0f, 0.0f);
 	fish->fishDirection = FacingRight;
 	fish->fishType = Goldfish;
@@ -92,24 +90,24 @@ FishEntity* alloc_fish( PlaydateAPI* pd, const char* sprite_path ) {
 	return fish;
 }
 
-void do_movement(PlaydateAPI* pd, FishEntity* fish) {
+void do_movement(PlaydateAPI* pd, float dt, FishEntity* fish) {
 	float sprite_x;
 	float sprite_y;
 	
 	pd->sprite->getPosition(fish->sprite, &sprite_x, &sprite_y);
 	
 	// Update velocity
-	fish->velocity->x += fish->acceleration->x;
-	fish->velocity->y += fish->acceleration->y;
+	fish->velocity->x += fish->acceleration->x * dt;
+	fish->velocity->y += fish->acceleration->y * dt;
 	
 	switch (fish->fishType) {
 		case Goldfish:
-			pd->sprite->moveBy(fish->sprite, fish->velocity->x, fish->velocity->y);
-		
+			pd->sprite->moveBy(fish->sprite, fish->velocity->x * dt, fish->velocity->y * dt);
+			
 			if (LCD_COLUMNS - sprite_x < 50) {
-				fish->acceleration->x = -0.05f;
+				fish->acceleration->x = -150.0f;
 			} else if (sprite_x < 50) {
-				fish->acceleration->x = 0.05f;
+				fish->acceleration->x = 150.0f;
 			} else {
 				fish->acceleration->x = 0.0f;
 			}
@@ -150,7 +148,7 @@ void do_movement(PlaydateAPI* pd, FishEntity* fish) {
 
 
 // Do you like fish ticks?
-void fish_tick(PlaydateAPI* pd, FishEntity* fishes[], const int num_fish) {
+void fish_tick(PlaydateAPI* pd, float dt, FishEntity* fishes[], const int num_fish) {
 	for (int i = 0; i < num_fish; i++) {
 		FishEntity* fish = fishes[i];
 		
@@ -174,16 +172,15 @@ void fish_tick(PlaydateAPI* pd, FishEntity* fishes[], const int num_fish) {
         pd->sprite->addSprite(fish->sprite);
 		
 		// Perform fish-based movement
-		do_movement(pd, fish);
-		do_bubble_ticks(pd);
+		do_movement(pd, dt, fish);
+		do_bubble_ticks(pd, dt);
 		
 		// Update collision for this fish
 		pd->sprite->setCollideRect(fish->sprite, pd->sprite->getBounds(fish->sprite));
 		
 		// Draw hitboxes if enabled
 		if (DRAW_HITBOXES) {
-			PDRect hitbox = pd->sprite->getCollideRect(fish->sprite);
-			pd->graphics->drawRect(hitbox.x, hitbox.y, hitbox.width, hitbox.height, kColorBlack);
+			draw_hitbox(pd, fish->sprite);
 		}
 		
 		srand((unsigned) pd->system->getCurrentTimeMilliseconds());

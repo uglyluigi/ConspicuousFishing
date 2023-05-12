@@ -6,6 +6,9 @@
 #include "pd_api/pd_api_gfx.h"
 #include "vec.c"
 #include "pd_api.h"
+#include <stdbool.h>
+
+#define DRAW_HITBOXES true
 
 #define MAX_FISH 1
 #define MAX_BUBBLES 5
@@ -30,6 +33,11 @@ LCDBitmap* alloc_bitmap(PlaydateAPI* pd, const char* sprite_path) {
 		pd->system->error("Failed to load bmp: %s", sprite_path);
 		exit(-1);
 	}
+}
+
+void draw_hitbox(PlaydateAPI* pd, LCDSprite* sprite) {
+	PDRect hitbox = pd->sprite->getCollideRect(sprite);
+	pd->graphics->drawRect(hitbox.x, hitbox.y, hitbox.width, hitbox.height, kColorBlack);
 }
 
 #endif
