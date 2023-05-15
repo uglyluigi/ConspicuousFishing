@@ -13,6 +13,17 @@
 #define MAX_FISH 1
 #define MAX_BUBBLES 5
 
+typedef struct {
+	int (*rand_btwn)(int, int);
+	LCDBitmapTable* (*alloc_bitmap_table)(PlaydateAPI*, const char*);
+	LCDBitmap* (*alloc_bitmap)(PlaydateAPI*, const char*);
+	void (*draw_hitbox)(PlaydateAPI*, LCDSprite*);
+	int (*signf)(float);
+	float (*clamp)(float, float, float);
+} Util;
+
+static Util* util;
+
 int rand_btwn(int nMin, int nMax) {
   return rand() % ((nMax + 1) - nMin) + nMin;
 }
@@ -35,6 +46,19 @@ LCDBitmap* alloc_bitmap(PlaydateAPI* pd, const char* sprite_path) {
 	}
 }
 
+LCDBitmapTable* alloc_bitmap_table(PlaydateAPI* pd, const char* table_path) {
+	char outerror[50];
+
+	LCDBitmapTable* table = pd->graphics->loadBitmapTable(table_path, &outerror);
+
+	if (table != NULL) {
+		return table;
+	} else {
+		pd->system->logToConsole("Error loading bitmap table %s: %s", table_path, outerror);
+		exit(-1);
+	}
+}
+
 void draw_hitbox(PlaydateAPI* pd, LCDSprite* sprite) {
 	PDRect hitbox = pd->sprite->getCollideRect(sprite);
 	pd->graphics->drawRect(hitbox.x, hitbox.y, hitbox.width, hitbox.height, kColorBlack);
@@ -50,6 +74,25 @@ float clamp(float d, float min, float max)
 {
 	const float t = d < min ? min : d;
 	return t > max ? max : t;
+}
+
+void init_util()
+{
+	util = (Util*) malloc(sizeof(Util));
+	util->alloc_bitmap_table = &alloc_bitmap_table;
+	util->rand_btwn = &rand_btwn;
+	util->alloc_bitmap = &alloc_bitmap;
+	util->clamp = &clamp;
+	util->signf = &signf;
+	util->rand_btwn = &rand_btwn;
+}
+
+void free_util() {
+	free(alloc_bitmap);
+	free(alloc_bitmap_table);
+	free(rand_btwn);
+	free(clamp);
+	free(signf);
 }
 
 #endif

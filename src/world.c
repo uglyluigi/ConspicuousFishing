@@ -81,7 +81,7 @@ void update_world(PlaydateAPI *pd, float dt, WorldInfo *world, float hook_x, flo
 		world->scroll_velocity->y = 0.0f;
 	}
 
-	pd->graphics->setDrawMode(kDrawModeXOR);
+	pd->graphics->setDrawMode(kDrawModeNXOR);
 	pd->graphics->drawBitmap(world->world_bg, world->world_pos->x, world->world_pos->y, kBitmapUnflipped);
 }
 

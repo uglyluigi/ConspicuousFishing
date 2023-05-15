@@ -36,6 +36,7 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
 	
 	if ( event == kEventInit )
 	{
+		init_util();
 		const char* err;
 		font = pd->graphics->loadFont(fontpath, &err);
 		

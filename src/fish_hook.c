@@ -11,24 +11,40 @@
 typedef struct {
 	Vec2D* acceleration;
 	Vec2D* velocity;
+	LCDBitmapTable* frames;
 	LCDSprite* sprite;
+	float animation_timer;
+	int table_idx;
 } FishHookEntity;
-
 
 FishHookEntity* player;
 
+void update_anim_frame(PlaydateAPI* pd, FishHookEntity* hook) {
+	hook->table_idx += 1;
+	if (hook->table_idx == 3)
+	{
+		hook->table_idx = 0;
+		return;
+	}
+	pd->sprite->setImage(hook->sprite, pd->graphics->getTableBitmap(hook->frames, hook->table_idx), kBitmapUnflipped);
+	hook->animation_timer = 0.0f;
+}
 // TODO: make hook stop at upper and lower bounds of screen
 
 void init_hook(PlaydateAPI* pd) {
 	FishHookEntity* fish_hook = (FishHookEntity*) malloc(sizeof(FishHookEntity));
 	fish_hook->acceleration = vec2d_new(0.0f, 0.0f);
 	fish_hook->velocity = vec2d_new(0.0f, 0.0f);
+	LCDBitmapTable *frames = alloc_bitmap_table(pd, "img/hook/rusty_hook/rusty_hook");
+	fish_hook->frames = frames;
 	LCDSprite* sprite = pd->sprite->newSprite();
-	pd->sprite->setImage(sprite, alloc_bitmap(pd, "img/hook.png"), kBitmapUnflipped);
+	pd->sprite->setImage(sprite, pd->graphics->getTableBitmap(fish_hook->frames, 2), kBitmapUnflipped);
 	pd->sprite->moveTo(sprite, 100.0f, 100.0f);
 	pd->sprite->addSprite(sprite);
 	pd->sprite->setCollideRect(sprite, pd->sprite->getBounds(sprite));
 	fish_hook->sprite = sprite;
+	fish_hook->animation_timer = 0.0f;
+	fish_hook->table_idx = 0;
 	player = fish_hook;
 }
 
@@ -37,6 +53,11 @@ void do_fish_hook_ticks(PlaydateAPI* pd, float dt, FishHookEntity* hook) {
 	PDButtons pushed;
 	PDButtons released;
 	pd->system->getButtonState(&current, &pushed, &released);
+	hook->animation_timer += dt;
+
+	if (hook->animation_timer > 0.5f) {
+		update_anim_frame(pd, hook);
+	}
 	
 	hook->velocity->x += hook->acceleration->x * dt;
 	hook->velocity->y += hook->acceleration->y * dt;
