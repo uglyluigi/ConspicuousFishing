@@ -14,6 +14,7 @@
 #include "bubble.c"
 #include "util.c"
 #include "fish_hook.c"
+#include "world.c"
 
 static int update(void* userdata);
 const char* fontpath = "/System/Fonts/Asheville-Sans-14-Bold.pft";
@@ -23,6 +24,8 @@ LCDBitmap* background_bitmap = NULL;
 LCDBitmap* hook_bitmap = NULL; 
 
 FishEntity* fishes[MAX_FISH];
+
+WorldInfo* world;
 
 #ifdef _WINDLL
 __declspec(dllexport)
@@ -42,6 +45,7 @@ int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
 		pd->system->resetElapsedTime();
 		
 		init_hook(pd);
+		world = init_world(pd, "img/test_map.png");
 
 		// Note: If you set an update callback in the kEventInit handler, the system assumes the game is pure C and doesn't run any Lua code in the game
 		pd->system->setUpdateCallback(update, pd);
@@ -73,11 +77,14 @@ static int update(void* userdata)
 
 	pd->sprite->drawSprites();
 	pd->system->drawFPS(0,0);
+
+	float hook_x, hook_y;
+	pd->sprite->getPosition(player->sprite, &hook_x, &hook_y);
 	
 	fish_tick(pd, dt, fishes, MAX_FISH);
 	do_bubble_ticks(pd, dt);
-	
 	do_fish_hook_ticks(pd, dt, player);
+	update_world(pd, dt, world, hook_x, hook_y);
 
 	return 1;
 }

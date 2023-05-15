@@ -17,13 +17,15 @@ typedef struct {
 
 FishHookEntity* player;
 
+// TODO: make hook stop at upper and lower bounds of screen
+
 void init_hook(PlaydateAPI* pd) {
 	FishHookEntity* fish_hook = (FishHookEntity*) malloc(sizeof(FishHookEntity));
 	fish_hook->acceleration = vec2d_new(0.0f, 0.0f);
 	fish_hook->velocity = vec2d_new(0.0f, 0.0f);
 	LCDSprite* sprite = pd->sprite->newSprite();
 	pd->sprite->setImage(sprite, alloc_bitmap(pd, "img/hook.png"), kBitmapUnflipped);
-	pd->sprite->moveTo(sprite, 20.0f, 20.0f);
+	pd->sprite->moveTo(sprite, 100.0f, 100.0f);
 	pd->sprite->addSprite(sprite);
 	pd->sprite->setCollideRect(sprite, pd->sprite->getBounds(sprite));
 	fish_hook->sprite = sprite;
@@ -57,6 +59,9 @@ void do_fish_hook_ticks(PlaydateAPI* pd, float dt, FishHookEntity* hook) {
 	
 	if (current & kButtonRight || pushed & kButtonRight) {
 		pd->system->logToConsole("Right");
+		// TODO no need to multiply by dt here; dt is applied
+		// when the velocity/position are updated using the
+		// current acceleration
 		hook->acceleration->x = 10000.0f * dt;
 	}
 	
@@ -93,14 +98,21 @@ void do_fish_hook_ticks(PlaydateAPI* pd, float dt, FishHookEntity* hook) {
 	pd->sprite->getPosition(hook->sprite, NULL, &sprite_y);
 	
 	PDRect bounds = pd->sprite->getBounds(hook->sprite);
-	
-	pd->system->logToConsole("sprite_y = %f", sprite_y);
-	
-	float upper_bound = bounds.height * 0.5f;
 		
+	float upper_bound = bounds.height * 0.5f;
+	
+	// Bump the sprite down if it's going too high
 	if (sprite_y < upper_bound) {
 		hook->velocity->y = 0;
 		hook->acceleration->y = 0;
+		pd->sprite->moveBy(hook->sprite, 0.0f, 1.0f);
+	}
+
+	// Bump it up if it's too low
+	if (sprite_y > LCD_ROWS - upper_bound) {
+		hook->velocity->y = 0;
+		hook->acceleration->y = 0;
+		pd->sprite->moveBy(hook->sprite, 0.0f, -1.0f);
 	}
 	
 	if (DRAW_HITBOXES) {

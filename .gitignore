@@ -11,3 +11,4 @@ compile_commands.json
 launch.json
 tasks.json
 build/*
+*.pxd

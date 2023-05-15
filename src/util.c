@@ -40,4 +40,16 @@ void draw_hitbox(PlaydateAPI* pd, LCDSprite* sprite) {
 	pd->graphics->drawRect(hitbox.x, hitbox.y, hitbox.width, hitbox.height, kColorBlack);
 }
 
+// https://stackoverflow.com/questions/14579920/fast-sign-of-integer-in-c
+int signf(float x)
+{
+	return (x > 0.0f) - (x < 0.0f);
+}
+
+float clamp(float d, float min, float max)
+{
+	const float t = d < min ? min : d;
+	return t > max ? max : t;
+}
+
 #endif
