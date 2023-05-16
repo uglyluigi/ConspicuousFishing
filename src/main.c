@@ -15,6 +15,7 @@
 #include "util.c"
 #include "fish_hook.c"
 #include "world.c"
+#include "anim.c"
 
 static int update(void* userdata);
 const char* fontpath = "/System/Fonts/Asheville-Sans-14-Bold.pft";
@@ -32,11 +33,12 @@ __declspec(dllexport)
 #endif
 int eventHandler(PlaydateAPI* pd, PDSystemEvent event, uint32_t arg)
 {
+	init_anim();
+	
 	(void)arg; // arg is currently only used for event = kEventKeyPressed
 	
 	if ( event == kEventInit )
 	{
-		init_util();
 		const char* err;
 		font = pd->graphics->loadFont(fontpath, &err);
 		

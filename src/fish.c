@@ -94,6 +94,7 @@ void do_movement(PlaydateAPI* pd, float dt, FishEntity* fish) {
 	float sprite_x;
 	float sprite_y;
 	
+	
 	pd->sprite->getPosition(fish->sprite, &sprite_x, &sprite_y);
 	
 	// Update velocity
