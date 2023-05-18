@@ -91,7 +91,7 @@ float vec2d_dot(const Vec2D *u, const Vec2D *v)
 
 float vec2d_theta(const Vec2D *u, const Vec2D *v)
 {
-	return acosf(dot(u, v) / (magnitude(u) * magnitude(v)));
+	return acosf(vec2d_dot(u, v) / (vec2d_magnitude(u) * vec2d_magnitude(v)));
 }
 
 void init_vec2d_api()
