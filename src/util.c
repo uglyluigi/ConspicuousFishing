@@ -13,53 +13,65 @@
 #define MAX_FISH 1
 #define MAX_BUBBLES 5
 
-typedef struct {
+typedef struct
+{
 	int (*rand_btwn)(int, int);
-	LCDBitmapTable* (*alloc_bitmap_table)(PlaydateAPI*, const char*);
-	LCDBitmap* (*alloc_bitmap)(PlaydateAPI*, const char*);
-	void (*draw_hitbox)(PlaydateAPI*, LCDSprite*);
+	LCDBitmapTable *(*alloc_bitmap_table)(PlaydateAPI *, const char *);
+	LCDBitmap *(*alloc_bitmap)(PlaydateAPI *, const char *);
+	void (*draw_hitbox)(PlaydateAPI *, LCDSprite *);
 	int (*signf)(float);
 	float (*clamp)(float, float, float);
-} Util;
+} _util_api;
 
-static Util* util;
+_util_api *util;
 
-int rand_btwn(int nMin, int nMax) {
-  return rand() % ((nMax + 1) - nMin) + nMin;
+int rand_btwn(int nMin, int nMax)
+{
+	return rand() % ((nMax + 1) - nMin) + nMin;
 }
 
-Vec2D* rand_pos() {
-	Vec2D* pos = vec2d_new((float)rand_btwn(0, LCD_COLUMNS), (float)rand_btwn(0, LCD_ROWS));
-	
+Vec2D *rand_pos()
+{
+	Vec2D *pos = vec2d_new((float)rand_btwn(0, LCD_COLUMNS), (float)rand_btwn(0, LCD_ROWS));
+
 	return pos;
 }
 
-LCDBitmap* alloc_bitmap(PlaydateAPI* pd, const char* sprite_path) {
-	LCDBitmap* bmp = pd->graphics->loadBitmap(sprite_path, NULL);
-	
-	if (bmp != NULL) {
+LCDBitmap *alloc_bitmap(PlaydateAPI *pd, const char *sprite_path)
+{
+	LCDBitmap *bmp = pd->graphics->loadBitmap(sprite_path, NULL);
+
+	if (bmp != NULL)
+	{
 		pd->system->logToConsole("Loading bmp: %s", sprite_path);
 		return bmp;
-	} else {
+	}
+	else
+	{
 		pd->system->error("Failed to load bmp: %s", sprite_path);
 		exit(-1);
 	}
 }
 
-LCDBitmapTable* alloc_bitmap_table(PlaydateAPI* pd, const char* table_path) {
+LCDBitmapTable *alloc_bitmap_table(PlaydateAPI *pd, const char *table_path)
+{
 	char outerror[50];
 
-	LCDBitmapTable* table = pd->graphics->loadBitmapTable(table_path, &outerror);
+	LCDBitmapTable *table = pd->graphics->loadBitmapTable(table_path, &outerror);
 
-	if (table != NULL) {
+	if (table != NULL)
+	{
 		return table;
-	} else {
+	}
+	else
+	{
 		pd->system->logToConsole("Error loading bitmap table %s: %s", table_path, outerror);
 		exit(-1);
 	}
 }
 
-void draw_hitbox(PlaydateAPI* pd, LCDSprite* sprite) {
+void draw_hitbox(PlaydateAPI *pd, LCDSprite *sprite)
+{
 	PDRect hitbox = pd->sprite->getCollideRect(sprite);
 	pd->graphics->drawRect(hitbox.x, hitbox.y, hitbox.width, hitbox.height, kColorBlack);
 }
@@ -76,9 +88,9 @@ float clamp(float d, float min, float max)
 	return t > max ? max : t;
 }
 
-void init_util()
+void init_util_api()
 {
-	util = (Util*) malloc(sizeof(Util));
+	util = (_util_api *)malloc(sizeof(_util_api));
 	util->alloc_bitmap_table = &alloc_bitmap_table;
 	util->rand_btwn = &rand_btwn;
 	util->alloc_bitmap = &alloc_bitmap;
@@ -87,7 +99,8 @@ void init_util()
 	util->rand_btwn = &rand_btwn;
 }
 
-void free_util() {
+void free_util()
+{
 	free(alloc_bitmap);
 	free(alloc_bitmap_table);
 	free(rand_btwn);

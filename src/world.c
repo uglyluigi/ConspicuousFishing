@@ -11,10 +11,15 @@
 
 typedef struct
 {
+	// The acceleration of the background bitmap
 	Vec2D *scroll_acceleration;
+	// The velocity of the background bitmap
 	Vec2D *scroll_velocity;
+	// The position of the bitmap (really operates more as an offset)
 	Vec2D *world_pos;
+	// Dimensions of the world bitmap according to the playdate api
 	const Vec2D *world_dimensions;
+	// Pointer to the actual world background
 	LCDBitmap *world_bg;
 } WorldInfo;
 
@@ -68,16 +73,20 @@ void update_world(PlaydateAPI *pd, float dt, WorldInfo *world, float hook_x, flo
 
 	float new_acceleration = get_scroll_acceleration(hook_y);
 
-	//pd->system->logToConsole("Hook: (%f, %f) new_accel: %f", hook_x, hook_y, new_acceleration);
+	// pd->system->logToConsole("Hook: (%f, %f) new_accel: %f", hook_x, hook_y, new_acceleration);
 
-	if (fabsf(new_acceleration) > 80.0f) {
+	if (fabsf(new_acceleration) > 80.0f)
+	{
 		world->scroll_acceleration->y = -new_acceleration;
-	} else {
+	}
+	else
+	{
 		world->scroll_velocity->y = 0.0f;
 	}
 
 	// Reset the scroll speed if the hook passes through the middle of the screen
-	if (signf(world->scroll_acceleration->y) != signf(new_acceleration)) {
+	if (signf(world->scroll_acceleration->y) != signf(new_acceleration))
+	{
 		world->scroll_velocity->y = 0.0f;
 	}
 
