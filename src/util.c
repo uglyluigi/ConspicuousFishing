@@ -2,11 +2,13 @@
 #define UTILC
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "pd_api/pd_api_gfx.h"
 #include "vec.c"
 #include "pd_api.h"
-#include <stdbool.h>
+#include "linkedlist.c"
+#include "storage.c"
 
 #define DRAW_HITBOXES true
 
@@ -21,6 +23,8 @@ typedef struct
 	void (*draw_hitbox)(PlaydateAPI *, LCDSprite *);
 	int (*signf)(float);
 	float (*clamp)(float, float, float);
+	void (*cleanup)(void);
+	LCDSprite* (*new_sprite)(PlaydateAPI*);
 } _util_api;
 
 _util_api *util;
@@ -32,9 +36,16 @@ int rand_btwn(int nMin, int nMax)
 
 Vec2D *rand_pos()
 {
-	Vec2D *pos = vec2d_new((float)rand_btwn(0, LCD_COLUMNS), (float)rand_btwn(0, LCD_ROWS));
+	Vec2D *pos = vec2d->new ((float)rand_btwn(0, LCD_COLUMNS), (float)rand_btwn(0, LCD_ROWS));
 
 	return pos;
+}
+
+LCDSprite *new_sprite(PlaydateAPI *pd)
+{
+	LCDSprite *sprite = pd->sprite->newSprite();
+	linked_list->add(sprite_storage, sprite);
+	return sprite;
 }
 
 LCDBitmap *alloc_bitmap(PlaydateAPI *pd, const char *sprite_path)
@@ -43,7 +54,7 @@ LCDBitmap *alloc_bitmap(PlaydateAPI *pd, const char *sprite_path)
 
 	if (bmp != NULL)
 	{
-		pd->system->logToConsole("Loading bmp: %s", sprite_path);
+		pd->system->logToConsole("Bmp %s loaded (addr: %p)", sprite_path, bmp);
 		return bmp;
 	}
 	else
@@ -88,6 +99,11 @@ float clamp(float d, float min, float max)
 	return t > max ? max : t;
 }
 
+void cleanup_util_api()
+{
+	free(util);
+}
+
 void init_util_api()
 {
 	util = (_util_api *)malloc(sizeof(_util_api));
@@ -97,15 +113,8 @@ void init_util_api()
 	util->clamp = &clamp;
 	util->signf = &signf;
 	util->rand_btwn = &rand_btwn;
-}
-
-void free_util()
-{
-	free(alloc_bitmap);
-	free(alloc_bitmap_table);
-	free(rand_btwn);
-	free(clamp);
-	free(signf);
+	util->cleanup = &cleanup_util_api;
+	util->new_sprite = &new_sprite;
 }
 
 #endif

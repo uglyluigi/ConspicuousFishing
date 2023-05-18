@@ -23,17 +23,19 @@ typedef struct
 	LCDBitmap *world_bg;
 } WorldInfo;
 
+WorldInfo *world;
+
 WorldInfo *init_world(PlaydateAPI *pd, const char *path)
 {
 	WorldInfo *world = (WorldInfo *)malloc(sizeof(WorldInfo));
 	world->world_bg = alloc_bitmap(pd, path);
-	world->scroll_acceleration = vec2d_new(0.0f, 0.0f);
-	world->scroll_velocity = vec2d_new(0.0f, 0.0f);
-	world->world_pos = vec2d_new(0.0f, 0.0f);
+	world->scroll_acceleration = vec2d->new(0.0f, 0.0f);
+	world->scroll_velocity = vec2d->new(0.0f, 0.0f);
+	world->world_pos = vec2d->new(0.0f, 0.0f);
 
 	int width, height;
 	pd->graphics->getBitmapData(world->world_bg, &width, &height, NULL, NULL, NULL);
-	world->world_dimensions = vec2d_new((float)width, (float)height);
+	world->world_dimensions = vec2d->new((float)width, (float)height);
 
 	return world;
 }

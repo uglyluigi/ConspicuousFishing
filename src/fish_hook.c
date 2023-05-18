@@ -19,14 +19,12 @@ typedef struct
 
 FishHookEntity *player;
 
-// TODO: make hook stop at upper and lower bounds of screen
-
 void init_hook(PlaydateAPI *pd)
 {
 	FishHookEntity *fish_hook = (FishHookEntity *)malloc(sizeof(FishHookEntity));
-	fish_hook->acceleration = vec2d_new(0.0f, 0.0f);
-	fish_hook->velocity = vec2d_new(0.0f, 0.0f);
-	LCDSprite *sprite = pd->sprite->newSprite();
+	fish_hook->acceleration = vec2d->new (0.0f, 0.0f);
+	fish_hook->velocity = vec2d->new (0.0f, 0.0f);
+	LCDSprite *sprite = util->new_sprite(pd);
 	fish_hook->hook_animation = animation->new_consecutive(pd, "img/hook/rusty_hook/rusty_hook", 3, 0, 0.5f, true);
 	pd->sprite->setImage(sprite, pd->graphics->getTableBitmap(fish_hook->hook_animation->frames, 0), kBitmapUnflipped);
 	pd->sprite->moveTo(sprite, 100.0f, 100.0f);
@@ -34,37 +32,55 @@ void init_hook(PlaydateAPI *pd)
 	pd->sprite->setCollideRect(sprite, pd->sprite->getBounds(sprite));
 	fish_hook->sprite = sprite;
 	player = fish_hook;
+	pd->system->logToConsole("Hook sprite @ %p", player->sprite);
 }
 
-void do_fish_hook_ticks(PlaydateAPI *pd, float dt, FishHookEntity *hook)
+void do_fish_hook_ticks(PlaydateAPI *pd, float dt)
 {
 	PDButtons current;
 	PDButtons pushed;
 	PDButtons released;
 	pd->system->getButtonState(&current, &pushed, &released);
 
-	animation->advance_by(pd, hook->hook_animation, dt);
-	pd->sprite->setImage(hook->sprite, hook->hook_animation->current_image, kBitmapUnflipped);
+	animation->advance_by(pd, player->hook_animation, dt);
+	pd->sprite->setImage(player->sprite, player->hook_animation->current_image, kBitmapUnflipped);
 
-	hook->velocity->x += hook->acceleration->x * dt;
-	hook->velocity->y += hook->acceleration->y * dt;
+	player->velocity->x += player->acceleration->x * dt;
+	player->velocity->y += player->acceleration->y * dt;
 
-	pd->sprite->moveBy(hook->sprite, hook->velocity->x * dt, hook->velocity->y * dt);
-	pd->sprite->setCollideRect(hook->sprite, pd->sprite->getBounds(hook->sprite));
+	pd->sprite->moveBy(player->sprite, player->velocity->x * dt, player->velocity->y * dt);
+	pd->sprite->setCollideRect(player->sprite, pd->sprite->getBounds(player->sprite));
+
+	float sprite_x, sprite_y;
+	float actual_x, actual_y;
+	int len;
+
+	pd->sprite->getPosition(player->sprite, &sprite_x, &sprite_y);
+	SpriteCollisionInfo *info = pd->sprite->checkCollisions(player->sprite, sprite_x, sprite_y, &actual_x, &actual_y, &len);
+
+	if (sprite_x == actual_x && sprite_y == actual_y)
+	{
+	}
+	else
+	{
+		pd->system->logToConsole("Collision w/sprite %p", info->other);
+		LCDSprite *gotten_sprite = (LCDSprite *)linked_list->get(sprite_storage, linked_list->index_of(sprite_storage, info->other));
+		pd->system->logToConsole("Retrieved %p from storage", gotten_sprite);
+	}
 
 	if (current & kButtonLeft || pushed & kButtonLeft)
 	{
 		pd->system->logToConsole("Left");
-		hook->acceleration->x = -10000.0f * dt;
+		player->acceleration->x = -10000.0f * dt;
 	}
 
 	if (released & kButtonLeft)
 	{
 		pd->system->logToConsole("Released left");
 
-		if (hook->acceleration->x < 0)
+		if (player->acceleration->x < 0)
 		{
-			hook->acceleration->x = 0;
+			player->acceleration->x = 0;
 		}
 	}
 
@@ -74,32 +90,32 @@ void do_fish_hook_ticks(PlaydateAPI *pd, float dt, FishHookEntity *hook)
 		// TODO no need to multiply by dt here; dt is applied
 		// when the velocity/position are updated using the
 		// current acceleration
-		hook->acceleration->x = 10000.0f * dt;
+		player->acceleration->x = 10000.0f * dt;
 	}
 
 	if (released & kButtonRight)
 	{
 		pd->system->logToConsole("Released right");
 
-		if (hook->acceleration->x > 0)
+		if (player->acceleration->x > 0)
 		{
-			hook->acceleration->x = 0;
+			player->acceleration->x = 0;
 		}
 	}
 
 	if (!(pushed & kButtonRight))
 	{
-		if (hook->velocity->x > 0)
+		if (player->velocity->x > 0)
 		{
-			hook->velocity->x *= 0.95f;
+			player->velocity->x *= 0.95f;
 		}
 	}
 
 	if (!(pushed & kButtonLeft))
 	{
-		if (hook->velocity->x < 0)
+		if (player->velocity->x < 0)
 		{
-			hook->velocity->x *= 0.95f;
+			player->velocity->x *= 0.95f;
 		}
 	}
 
@@ -107,49 +123,45 @@ void do_fish_hook_ticks(PlaydateAPI *pd, float dt, FishHookEntity *hook)
 
 	if (crank_change != 0)
 	{
-		hook->velocity->y += crank_change * 0.3f;
+		player->velocity->y += crank_change * 0.3f;
 	}
 	else
 	{
-		hook->velocity->y *= 0.70f;
+		player->velocity->y *= 0.70f;
 	}
 
-	float sprite_y;
-
-	pd->sprite->getPosition(hook->sprite, NULL, &sprite_y);
-
-	PDRect bounds = pd->sprite->getBounds(hook->sprite);
+	PDRect bounds = pd->sprite->getBounds(player->sprite);
 
 	float upper_bound = bounds.height * 0.5f;
 
 	// Bump the sprite down if it's going too high
 	if (sprite_y < upper_bound)
 	{
-		hook->velocity->y = 0;
-		hook->acceleration->y = 0;
-		pd->sprite->moveBy(hook->sprite, 0.0f, 1.0f);
+		player->velocity->y = 0;
+		player->acceleration->y = 0;
+		pd->sprite->moveBy(player->sprite, 0.0f, 1.0f);
 	}
 
 	// Bump it up if it's too low
 	if (sprite_y > LCD_ROWS - upper_bound)
 	{
-		hook->velocity->y = 0;
-		hook->acceleration->y = 0;
-		pd->sprite->moveBy(hook->sprite, 0.0f, -1.0f);
+		player->velocity->y = 0;
+		player->acceleration->y = 0;
+		pd->sprite->moveBy(player->sprite, 0.0f, -1.0f);
 	}
 
 	if (DRAW_HITBOXES)
 	{
-		draw_hitbox(pd, hook->sprite);
+		draw_hitbox(pd, player->sprite);
 	}
 }
 
-void destroy_hook(PlaydateAPI *pd, FishHookEntity *hook)
+void destroy_hook(PlaydateAPI *pd)
 {
-	free(hook->acceleration);
-	free(hook->hook_animation);
-	pd->sprite->freeSprite(hook->sprite);
-	animation->free(pd, hook->hook_animation);
+	free(player->acceleration);
+	free(player->hook_animation);
+	pd->sprite->freeSprite(player->sprite);
+	animation->free(pd, player->hook_animation);
 }
 
 #endif

@@ -1,5 +1,7 @@
 {
 	"files.associations": {
-		"algorithm": "c"
+		"algorithm": "c",
+		"stdlib.h": "c",
+		"pd_api_gfx.h": "c"
 	}
 }

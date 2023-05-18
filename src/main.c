@@ -16,31 +16,28 @@
 #include "fish_hook.c"
 #include "world.c"
 #include "anim.c"
+#include "linkedlist.c"
+#include "storage.c"
 
 static int update(void *userdata);
 const char *fontpath = "/System/Fonts/Asheville-Sans-14-Bold.pft";
 LCDFont *font = NULL;
-
-LCDBitmap *background_bitmap = NULL;
-LCDBitmap *hook_bitmap = NULL;
-
-FishEntity *fishes[MAX_FISH];
-
-WorldInfo *world;
 
 #ifdef _WINDLL
 __declspec(dllexport)
 #endif
 	int eventHandler(PlaydateAPI *pd, PDSystemEvent event, uint32_t arg)
 {
-	init_animation_api();
-	init_util_api();
-	init_vec2d_api();
-
 	(void)arg; // arg is currently only used for event = kEventKeyPressed
 
 	if (event == kEventInit)
 	{
+		init_animation_api();
+		init_util_api();
+		init_vec2d_api();
+		init_linkedlist_api();
+		init_storage();
+
 		const char *err;
 		font = pd->graphics->loadFont(fontpath, &err);
 
@@ -59,6 +56,13 @@ __declspec(dllexport)
 		{
 			fishes[i] = alloc_fish(pd, get_sprite_for_fish_type(Goldfish));
 		}
+	}
+
+	if (event == kEventTerminate) {
+		util->cleanup();
+		animation->cleanup();
+		vec2d->cleanup();
+		clean_storage();
 	}
 
 	return 0;
@@ -89,7 +93,7 @@ static int update(void *userdata)
 
 	fish_tick(pd, dt, fishes, MAX_FISH);
 	do_bubble_ticks(pd, dt);
-	do_fish_hook_ticks(pd, dt, player);
+	do_fish_hook_ticks(pd, dt);
 	update_world(pd, dt, world, hook_x, hook_y);
 
 	return 1;

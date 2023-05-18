@@ -55,6 +55,8 @@ typedef struct
 	bool does_bob;
 } FishEntity;
 
+FishEntity *fishes[MAX_FISH];
+
 const char *get_sprite_for_fish_type(enum FishType type)
 {
 	return "img/moorish_idol.png";
@@ -75,19 +77,20 @@ FishEntity *alloc_fish(PlaydateAPI *pd, const char *sprite_path)
 
 	fish->id = id_pool;
 	id_pool++;
-	fish->max_velocity = vec2d_new(100.0f, 0.0f);
+	fish->max_velocity = vec2d->new (100.0f, 0.0f);
 	fish->clamp_velocity_x = true;
 	fish->clamp_velocity_y = true;
-	fish->velocity = vec2d_new(100.0f, 0.0f);
-	fish->acceleration = vec2d_new(0.0f, 0.0f);
+	fish->velocity = vec2d->new (100.0f, 0.0f);
+	fish->acceleration = vec2d->new (0.0f, 0.0f);
 	fish->fishDirection = FacingRight;
 	fish->fishType = Goldfish;
 	fish->y_offset = 0.0f;
 
-	LCDSprite *sprite = pd->sprite->newSprite();
+	LCDSprite *sprite = util->new_sprite(pd);
 	pd->sprite->setImage(sprite, alloc_bitmap(pd, sprite_path), kBitmapUnflipped);
 	pd->sprite->moveTo(sprite, 100.0f, 100.0f);
 	pd->sprite->setCollideRect(sprite, pd->sprite->getBounds(sprite));
+	pd->sprite->addSprite(sprite);
 	fish->sprite = sprite;
 	fish->does_bob = true;
 

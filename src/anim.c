@@ -33,6 +33,7 @@ typedef struct
 	void (*set_table_idx)(PlaydateAPI *, BitmapTableAnimation *, int);
 	void (*advance_by)(PlaydateAPI *, BitmapTableAnimation *, float);
 	void (*free)(PlaydateAPI *, BitmapTableAnimation *);
+	void (*cleanup)(void);
 } _animation_api;
 
 _animation_api *animation;
@@ -94,15 +95,21 @@ void sta_advance_by(PlaydateAPI *pd, BitmapTableAnimation *animation, float dt)
 	}
 }
 
+void cleanup_animation_api()
+{
+	free(animation);
+}
+
 void init_animation_api()
 {
 	animation = (_animation_api *)malloc(sizeof(_animation_api));
 	animation->advance_by = &sta_advance_by;
 	animation->set_table_idx = &sta_set_table_idx;
 	animation->new_consecutive = &sta_new_consecutive;
+	animation->cleanup = &cleanup_animation_api;
 }
 
-void sta_free(PlaydateAPI *pd, BitmapTableAnimation *animation)
+void free_animation(PlaydateAPI *pd, BitmapTableAnimation *animation)
 {
 	// Doing this would probably be a double free
 	// since current_image is a pointer into the bitmap table

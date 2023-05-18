@@ -47,10 +47,10 @@ bool spawn_bubble(PlaydateAPI *pd, LCDSprite *sprite)
 
 		BubbleEntity *bubble = (BubbleEntity *)malloc(sizeof(BubbleEntity));
 
-		bubble->acceleration = vec2d_new(0.0f, 0.0f);
-		bubble->velocity = vec2d_new(0.0f, -10.0f);
+		bubble->acceleration = vec2d->new (0.0f, 0.0f);
+		bubble->velocity = vec2d->new (0.0f, -10.0f);
 
-		LCDSprite *sprite = pd->sprite->newSprite();
+		LCDSprite *sprite = util->new_sprite(pd);
 		pd->sprite->setImage(sprite, alloc_bitmap(pd, "img/bubble.png"), kBitmapUnflipped);
 		pd->sprite->moveTo(sprite, sprite_x, sprite_y);
 		pd->sprite->addSprite(sprite);
@@ -71,6 +71,10 @@ bool spawn_bubble(PlaydateAPI *pd, LCDSprite *sprite)
 
 void destroy_bubble(PlaydateAPI *pd, BubbleEntity *bubble)
 {
+	if (linked_list->remove(sprite_storage, bubble->sprite))
+	{
+		pd->system->logToConsole("Removed bubble from sprite list");
+	}
 	pd->sprite->removeSprite(bubble->sprite);
 	free(bubble->acceleration);
 	free(bubble->velocity);

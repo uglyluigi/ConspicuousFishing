@@ -25,6 +25,7 @@ typedef struct
 	float (*magnitude)(const Vec2D *);
 	float (*dot)(const Vec2D *, const Vec2D *);
 	float (*theta)(const Vec2D *, const Vec2D *);
+	void (*cleanup)(void);
 } _vec2d_api;
 
 _vec2d_api *vec2d;
@@ -94,6 +95,11 @@ float vec2d_theta(const Vec2D *u, const Vec2D *v)
 	return acosf(vec2d_dot(u, v) / (vec2d_magnitude(u) * vec2d_magnitude(v)));
 }
 
+void cleanup_vec2d_api()
+{
+	free(vec2d);
+}
+
 void init_vec2d_api()
 {
 	vec2d = (_vec2d_api *)malloc(sizeof(_vec2d_api));
@@ -108,5 +114,7 @@ void init_vec2d_api()
 	vec2d->magnitude = &vec2d_magnitude;
 	vec2d->theta = &vec2d_theta;
 	vec2d->dot = &vec2d_dot;
+	vec2d->cleanup = &cleanup_vec2d_api;
 }
 #endif
+
