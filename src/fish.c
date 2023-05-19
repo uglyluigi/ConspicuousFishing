@@ -66,14 +66,7 @@ static int id_pool = 0;
 
 FishEntity *alloc_fish(PlaydateAPI *pd, const char *sprite_path)
 {
-	size_t fish_size = sizeof(FishEntity);
-	FishEntity *fish = malloc(fish_size);
-
-	if (fish == NULL)
-	{
-		pd->system->error("Allocation of %d bytes failed.", fish_size);
-		exit(-1);
-	}
+	FishEntity *fish = MALLOC(1, FishEntity);
 
 	fish->id = id_pool;
 	id_pool++;
@@ -93,8 +86,6 @@ FishEntity *alloc_fish(PlaydateAPI *pd, const char *sprite_path)
 	pd->sprite->addSprite(sprite);
 	fish->sprite = sprite;
 	fish->does_bob = true;
-
-	pd->system->logToConsole("Allocated new entity with id %d (%d bytes)", fish->id, fish_size);
 
 	return fish;
 }

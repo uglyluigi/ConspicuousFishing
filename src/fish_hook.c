@@ -21,7 +21,7 @@ FishHookEntity *player;
 
 void init_hook(PlaydateAPI *pd)
 {
-	FishHookEntity *fish_hook = (FishHookEntity *)malloc(sizeof(FishHookEntity));
+	FishHookEntity *fish_hook = MALLOC(1, FishHookEntity);
 	fish_hook->acceleration = vec2d->new (0.0f, 0.0f);
 	fish_hook->velocity = vec2d->new (0.0f, 0.0f);
 	LCDSprite *sprite = util->new_sprite(pd);

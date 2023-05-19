@@ -12,7 +12,7 @@ typedef struct LinkedListNode
 
 typedef struct
 {
-	void *head;
+	LinkedListNode *head;
 	size_t size;
 } LinkedList;
 
@@ -49,7 +49,8 @@ LinkedListNode *traverse(const LinkedList *list)
 {
 	LinkedListNode *current_node = list->head;
 
-	if (current_node == NULL) {
+	if (current_node == NULL)
+	{
 		return NULL;
 	}
 
@@ -65,9 +66,12 @@ void linkedlist_add(LinkedList *list, void *data)
 {
 	LinkedListNode *node = linkedlist_new_node(data);
 
-	if (list->head == NULL) {
+	if (list->head == NULL)
+	{
 		list->head = node;
-	} else {
+	}
+	else
+	{
 		LinkedListNode *tail = traverse(list);
 		tail->next = node;
 	}
@@ -121,25 +125,55 @@ void *linkedlist_get(LinkedList *list, size_t index)
 
 bool linkedlist_remove(LinkedList *list, void *data)
 {
-	LinkedListNode *current_node = list->head;
-	
-	do
+	// Check if it's an empty list
+	if (list->head == NULL)
 	{
-		if (current_node->next == NULL)
+		// Empty lists cant have stuff removed from them
+		return false;
+	}
+
+	if (data == NULL)
+	{
+		printf("You probably didn't mean to remove NULL from a linked list.");
+		return false;
+	}
+
+	// Traverse the list
+	LinkedListNode *prev_node;
+	LinkedListNode *curr_node = list->head;
+
+	while (curr_node != NULL)
+	{
+		if (curr_node->data == data)
+		{
+			LinkedListNode *old_ptr = curr_node;
+
+			if (curr_node == list->head)
+			{
+				list->head = list->head->next;
+			}
+			else
+			{
+				prev_node->next = curr_node->next; // Sometimes this will be NULL, but that's OK
+			}
+
+			free(old_ptr);
+			list->size -= 1;
+			return true;
+		}
+
+		if (curr_node->next != NULL)
+		{
+			prev_node = curr_node;
+			curr_node = curr_node->next;
+		}
+		else
 		{
 			return false;
 		}
+	}
 
-		current_node = current_node->next;
-	} while (current_node->next->data != data);
-
-	// Current_node should now be the node before the one that contains *data
-	LinkedListNode *old_pointer = current_node->next;
-	current_node->next = current_node->next->next;
-	// free the old, unused node; do not free anything inside of it
-	free(old_pointer);
-	list->size -= 1;
-	return true;
+	return false;
 }
 
 void linkedlist_free_rec(LinkedListNode *current)

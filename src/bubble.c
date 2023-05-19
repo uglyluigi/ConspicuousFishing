@@ -45,7 +45,7 @@ bool spawn_bubble(PlaydateAPI *pd, LCDSprite *sprite)
 		float sprite_y;
 		pd->sprite->getPosition(sprite, &sprite_x, &sprite_y);
 
-		BubbleEntity *bubble = (BubbleEntity *)malloc(sizeof(BubbleEntity));
+		BubbleEntity *bubble = MALLOC(1, BubbleEntity);
 
 		bubble->acceleration = vec2d->new (0.0f, 0.0f);
 		bubble->velocity = vec2d->new (0.0f, -10.0f);

@@ -27,7 +27,7 @@ WorldInfo *world;
 
 WorldInfo *init_world(PlaydateAPI *pd, const char *path)
 {
-	WorldInfo *world = (WorldInfo *)malloc(sizeof(WorldInfo));
+	WorldInfo *world = MALLOC(1, WorldInfo);
 	world->world_bg = alloc_bitmap(pd, path);
 	world->scroll_acceleration = vec2d->new(0.0f, 0.0f);
 	world->scroll_velocity = vec2d->new(0.0f, 0.0f);

@@ -15,6 +15,25 @@
 #define MAX_FISH 1
 #define MAX_BUBBLES 5
 
+#define MALLOC(num, type) (type *)alloc((num) * sizeof(type))
+extern void *alloc(size_t size);
+
+void *alloc(size_t size) {
+	printf("Allocated %d bytes", size);
+	void *new_mem;
+
+	new_mem = malloc(size);
+
+	if (new_mem == NULL) {
+		printf("Out of memory");
+		exit(1);
+	}
+
+	return new_mem;
+}
+
+#define malloc CALL MACRO INSTEAD
+
 typedef struct
 {
 	int (*rand_btwn)(int, int);
@@ -24,7 +43,7 @@ typedef struct
 	int (*signf)(float);
 	float (*clamp)(float, float, float);
 	void (*cleanup)(void);
-	LCDSprite* (*new_sprite)(PlaydateAPI*);
+	LCDSprite *(*new_sprite)(PlaydateAPI *);
 } _util_api;
 
 _util_api *util;
@@ -106,7 +125,7 @@ void cleanup_util_api()
 
 void init_util_api()
 {
-	util = (_util_api *)malloc(sizeof(_util_api));
+	util = MALLOC(1, _util_api);
 	util->alloc_bitmap_table = &alloc_bitmap_table;
 	util->rand_btwn = &rand_btwn;
 	util->alloc_bitmap = &alloc_bitmap;

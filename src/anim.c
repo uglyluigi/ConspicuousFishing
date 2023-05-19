@@ -41,7 +41,7 @@ _animation_api *animation;
 // Private function that makes a clean BitmapTableAnimation struct
 BitmapTableAnimation *sta_new_empty()
 {
-	BitmapTableAnimation *sta = (BitmapTableAnimation *)malloc(sizeof(BitmapTableAnimation));
+	BitmapTableAnimation *sta = MALLOC(1, BitmapTableAnimation);
 	sta->table_idx = 0;
 	sta->animation_timer = 0.0f;
 	sta->animation_direction = 1;
@@ -102,7 +102,7 @@ void cleanup_animation_api()
 
 void init_animation_api()
 {
-	animation = (_animation_api *)malloc(sizeof(_animation_api));
+	animation = MALLOC(1, _animation_api);
 	animation->advance_by = &sta_advance_by;
 	animation->set_table_idx = &sta_set_table_idx;
 	animation->new_consecutive = &sta_new_consecutive;

@@ -58,7 +58,8 @@ __declspec(dllexport)
 		}
 	}
 
-	if (event == kEventTerminate) {
+	if (event == kEventTerminate)
+	{
 		util->cleanup();
 		animation->cleanup();
 		vec2d->cleanup();
