@@ -1,23 +1,15 @@
-#ifndef FISH_HOOKC
-#define FISH_HOOKC
-
 #include "pd_api.h"
 #include "pd_api/pd_api_sys.h"
 #include "pd_api/pd_api_gfx.h"
 #include "pd_api/pd_api_sprite.h"
-#include "vec.c"
-#include "util.c"
-#include "anim.c"
-
-typedef struct
-{
-	Vec2D *acceleration;
-	Vec2D *velocity;
-	LCDSprite *sprite;
-	BitmapTableAnimation *hook_animation;
-} FishHookEntity;
-
-FishHookEntity *player;
+#include "vec.h"
+#include "util.h"
+#include "anim.h"
+#include "fish_hook.h"
+#include "alloc.h"
+#include "linkedlist.h"
+#include "const.h"
+#include "storage.h"
 
 void init_hook(PlaydateAPI *pd)
 {
@@ -163,5 +155,3 @@ void destroy_hook(PlaydateAPI *pd)
 	pd->sprite->freeSprite(player->sprite);
 	animation->free(pd, player->hook_animation);
 }
-
-#endif

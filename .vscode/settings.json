@@ -2,6 +2,11 @@
 	"files.associations": {
 		"algorithm": "c",
 		"stdlib.h": "c",
-		"pd_api_gfx.h": "c"
+		"pd_api_gfx.h": "c",
+		"alloc.h": "c",
+		"fish_hook.h": "c",
+		"anim.h": "c",
+		"pd_api_sprite.h": "c",
+		"util.h": "c"
 	}
 }

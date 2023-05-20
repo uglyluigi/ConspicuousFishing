@@ -1,34 +1,11 @@
-#ifndef VECC
-#define VECC
-
 #include <stdlib.h>
+#include <math.h>
+
+#include "vec.h"
 
 // A 2-dimensional vector
 // that supports basic vector operations like
 // scaling, multiplying, adding, and copying
-typedef struct Vec2D
-{
-	float x;
-	float y;
-} Vec2D;
-
-typedef struct
-{
-	Vec2D *(*new)(float x, float y);
-	Vec2D *(*copy)(const Vec2D *);
-	void (*add)(const Vec2D *, const Vec2D *, Vec2D *);
-	void (*negate_x)(const Vec2D *, Vec2D *);
-	void (*negate_y)(const Vec2D *, Vec2D *);
-	void (*negate)(const Vec2D *, Vec2D *);
-	void (*subtract)(const Vec2D *, const Vec2D *, Vec2D *);
-	void (*scale)(const Vec2D *, const float, Vec2D *);
-	float (*magnitude)(const Vec2D *);
-	float (*dot)(const Vec2D *, const Vec2D *);
-	float (*theta)(const Vec2D *, const Vec2D *);
-	void (*cleanup)(void);
-} _vec2d_api;
-
-_vec2d_api *vec2d;
 
 Vec2D *vec2d_new(float x, float y)
 {
@@ -116,5 +93,5 @@ void init_vec2d_api()
 	vec2d->dot = &vec2d_dot;
 	vec2d->cleanup = &cleanup_vec2d_api;
 }
-#endif
+
 

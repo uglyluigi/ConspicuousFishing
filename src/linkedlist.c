@@ -1,33 +1,8 @@
-#ifndef LINKEDLISTC
-#define LINKEDLISTC
-
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdio.h>
 
-typedef struct LinkedListNode
-{
-	void *data;
-	struct LinkedListNode *next;
-} LinkedListNode;
-
-typedef struct
-{
-	LinkedListNode *head;
-	size_t size;
-} LinkedList;
-
-typedef struct
-{
-	LinkedList *(*new)(void);
-	void (*add)(LinkedList *, void *);
-	int (*index_of)(LinkedList *, void *);
-	void *(*get)(LinkedList *, size_t);
-	bool (*remove)(LinkedList *, void *);
-	void (*free)(LinkedList *);
-	void (*cleanup)(void);
-} _linkedlist_api;
-
-_linkedlist_api *linked_list;
+#include "linkedlist.h"
 
 LinkedList *linkedlist_new(void)
 {
@@ -208,5 +183,3 @@ void init_linkedlist_api()
 	api->cleanup = &cleanup_linkedlist_api;
 	linked_list = api;
 }
-
-#endif

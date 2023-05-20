@@ -1,52 +1,19 @@
-#ifndef UTILC
-#define UTILC
-
 #include <stdlib.h>
 #include <stdbool.h>
 
 #include "pd_api/pd_api_gfx.h"
-#include "vec.c"
 #include "pd_api.h"
-#include "linkedlist.c"
-#include "storage.c"
+#include "linkedlist.h"
+#include "storage.h"
+#include "alloc.h"
+
+#include "util.h"
 
 #define DRAW_HITBOXES true
 
 #define MAX_FISH 1
 #define MAX_BUBBLES 5
 
-#define MALLOC(num, type) (type *)alloc((num) * sizeof(type))
-extern void *alloc(size_t size);
-
-void *alloc(size_t size) {
-	printf("Allocated %d bytes", size);
-	void *new_mem;
-
-	new_mem = malloc(size);
-
-	if (new_mem == NULL) {
-		printf("Out of memory");
-		exit(1);
-	}
-
-	return new_mem;
-}
-
-#define malloc CALL MACRO INSTEAD
-
-typedef struct
-{
-	int (*rand_btwn)(int, int);
-	LCDBitmapTable *(*alloc_bitmap_table)(PlaydateAPI *, const char *);
-	LCDBitmap *(*alloc_bitmap)(PlaydateAPI *, const char *);
-	void (*draw_hitbox)(PlaydateAPI *, LCDSprite *);
-	int (*signf)(float);
-	float (*clamp)(float, float, float);
-	void (*cleanup)(void);
-	LCDSprite *(*new_sprite)(PlaydateAPI *);
-} _util_api;
-
-_util_api *util;
 
 int rand_btwn(int nMin, int nMax)
 {
@@ -135,5 +102,3 @@ void init_util_api()
 	util->cleanup = &cleanup_util_api;
 	util->new_sprite = &new_sprite;
 }
-
-#endif

@@ -1,29 +1,9 @@
-#ifndef WORLDC
-#define WORLDC
-
 #include "pd_api.h"
-#include "util.c"
-#include "vec.c"
+#include "util.h"
+#include "vec.h"
 #include "math.h"
-
-#define MAP_LENGTH 2000
-#define MAX_Y MAP_LENGTH - LCD_ROWS
-
-typedef struct
-{
-	// The acceleration of the background bitmap
-	Vec2D *scroll_acceleration;
-	// The velocity of the background bitmap
-	Vec2D *scroll_velocity;
-	// The position of the bitmap (really operates more as an offset)
-	Vec2D *world_pos;
-	// Dimensions of the world bitmap according to the playdate api
-	const Vec2D *world_dimensions;
-	// Pointer to the actual world background
-	LCDBitmap *world_bg;
-} WorldInfo;
-
-WorldInfo *world;
+#include "alloc.h"
+#include "world.h"
 
 WorldInfo *init_world(PlaydateAPI *pd, const char *path)
 {
@@ -95,5 +75,3 @@ void update_world(PlaydateAPI *pd, float dt, WorldInfo *world, float hook_x, flo
 	pd->graphics->setDrawMode(kDrawModeNXOR);
 	pd->graphics->drawBitmap(world->world_bg, world->world_pos->x, world->world_pos->y, kBitmapUnflipped);
 }
-
-#endif

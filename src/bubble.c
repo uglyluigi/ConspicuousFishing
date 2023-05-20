@@ -1,20 +1,15 @@
-#ifndef BUBBLEC
-#define BUBBLEC
-
 #include <stdbool.h>
 
-#include "vec.c"
+#include "vec.h"
 #include "pd_api.h"
 #include "pd_api/pd_api_gfx.h"
 #include "pd_api/pd_api_sprite.h"
-#include "util.c"
-
-typedef struct
-{
-	Vec2D *acceleration;
-	Vec2D *velocity;
-	LCDSprite *sprite;
-} BubbleEntity;
+#include "util.h"
+#include "const.h"
+#include "alloc.h"
+#include "bubble.h"
+#include "linkedlist.h"
+#include "storage.h"
 
 int first_available_bubble_slot_index = 0;
 BubbleEntity *bubbles[MAX_BUBBLES] = {NULL, NULL, NULL, NULL, NULL};
@@ -104,4 +99,3 @@ void do_bubble_ticks(PlaydateAPI *pd, float dt)
 		}
 	}
 }
-#endif

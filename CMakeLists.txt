@@ -31,10 +31,13 @@ set(PLAYDATE_GAME_DEVICE ConspicuousFishing_SIM)
 
 project(${PLAYDATE_GAME_NAME} C ASM)
 
+FILE(GLOB SOURCES src/*.c)
+FILE(GLOB HEADERS src/*.h)
+
 if (TOOLCHAIN STREQUAL "armgcc")
-	add_executable(${PLAYDATE_GAME_DEVICE} src/main.c)
+	add_executable(${PLAYDATE_GAME_DEVICE} ${SOURCES} ${HEADERS})
 else()
-	add_library(${PLAYDATE_GAME_NAME} SHARED src/main.c )
+	add_library(${PLAYDATE_GAME_NAME} SHARED ${SOURCES} ${HEADERS})
 endif()
 
 include(${SDK}/C_API/buildsupport/playdate_game.cmake)

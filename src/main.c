@@ -10,14 +10,15 @@
 #include <stdlib.h>
 
 #include "pd_api.h"
-#include "fish.c"
-#include "bubble.c"
-#include "util.c"
-#include "fish_hook.c"
-#include "world.c"
-#include "anim.c"
-#include "linkedlist.c"
-#include "storage.c"
+#include "fish.h"
+#include "bubble.h"
+#include "util.h"
+#include "fish_hook.h"
+#include "world.h"
+#include "anim.h"
+#include "linkedlist.h"
+#include "storage.h"
+#include "const.h"
 
 static int update(void *userdata);
 const char *fontpath = "/System/Fonts/Asheville-Sans-14-Bold.pft";
