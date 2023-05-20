@@ -41,7 +41,7 @@ FishEntity *alloc_fish(PlaydateAPI *pd, const char *sprite_path)
 
 	LCDSprite *sprite = util->new_sprite(pd);
 	pd->sprite->setImage(sprite, alloc_bitmap(pd, sprite_path), kBitmapUnflipped);
-	pd->sprite->moveTo(sprite, 100.0f, 100.0f);
+	pd->sprite->moveTo(sprite, 200.0f, 200.0f);
 	pd->sprite->setCollideRect(sprite, pd->sprite->getBounds(sprite));
 	pd->sprite->addSprite(sprite);
 	fish->sprite = sprite;
@@ -49,6 +49,7 @@ FishEntity *alloc_fish(PlaydateAPI *pd, const char *sprite_path)
 
 	Entity e = {.fish = fish};
 	register_entity(kFishEntity, e);
+	store_fish(fish);
 
 	return fish;
 }
@@ -126,9 +127,9 @@ void do_movement(PlaydateAPI *pd, float dt, FishEntity *fish)
 // Do you like fish ticks?
 void fish_tick(PlaydateAPI *pd, float dt, FishEntity *fishes[], const int num_fish)
 {
-	for (int i = 0; i < num_fish; i++)
+	for (int i = 0; i < fish_entities->size; i++)
 	{
-		FishEntity *fish = fishes[i];
+		FishEntity *fish = linked_list->get(fish_entities, i);
 
 		if (fish->velocity->x > 0)
 		{
@@ -174,7 +175,7 @@ void fish_tick(PlaydateAPI *pd, float dt, FishEntity *fishes[], const int num_fi
 	}
 }
 
-void destroy_fish(PlaydateAPI* pd, FishEntity *entity)
+void destroy_fish(PlaydateAPI *pd, FishEntity *entity)
 {
 	pd->sprite->removeSprite(entity->sprite);
 	free(entity->acceleration);
@@ -182,4 +183,5 @@ void destroy_fish(PlaydateAPI* pd, FishEntity *entity)
 	pd->sprite->freeSprite(entity->sprite);
 	free(entity);
 	deregister_entity(entity);
+	linked_list->remove(fish_entities, entity);
 }

@@ -53,10 +53,7 @@ __declspec(dllexport)
 		// Note: If you set an update callback in the kEventInit handler, the system assumes the game is pure C and doesn't run any Lua code in the game
 		pd->system->setUpdateCallback(update, pd);
 
-		for (int i = 0; i < MAX_FISH; i++)
-		{
-			fishes[i] = alloc_fish(pd, get_sprite_for_fish_type(Goldfish));
-		}
+		alloc_fish(pd, get_sprite_for_fish_type(Goldfish));
 	}
 
 	if (event == kEventTerminate)

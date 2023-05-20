@@ -25,6 +25,7 @@ typedef struct _linkedlist_api
 	bool (*remove)(LinkedList *, void *);
 	void (*free)(LinkedList *);
 	void (*cleanup)(void);
+	void (*for_each)(const LinkedList *, void (*)(void *))
 } _linkedlist_api;
 
 _linkedlist_api *linked_list;
@@ -40,5 +41,6 @@ void linkedlist_free_rec(LinkedListNode *current);
 void linkedlist_free(LinkedList *list);
 void cleanup_linkedlist_api();
 void init_linkedlist_api();
+void for_each(LinkedList *list, void (*consumer)(void *item));
 
 #endif

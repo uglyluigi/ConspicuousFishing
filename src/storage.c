@@ -75,8 +75,9 @@ void deregister_entity(void *entity)
 
 void init_storage()
 {
-	sprite_storage = linked_list->new ();
 	entity_storage = linked_list->new ();
+	fish_entities = linked_list->new ();
+	sprite_storage = linked_list->new ();
 }
 
 void clean_storage()
@@ -87,10 +88,14 @@ void clean_storage()
 
 void store_sprite(LCDSprite *sprite)
 {
-	
 }
 
 LCDSprite *retrieve_sprite(LCDSprite *sprite)
 {
 	return (LCDSprite *)linked_list->get(sprite_storage, linked_list->index_of(sprite_storage, sprite));
+}
+
+void store_fish(FishEntity *fish)
+{
+	linked_list->add(fish_entities, fish);
 }

@@ -52,7 +52,7 @@ void do_fish_hook_ticks(PlaydateAPI *pd, float dt)
 	pd->sprite->getPosition(player->sprite, &sprite_x, &sprite_y);
 	SpriteCollisionInfo *info = pd->sprite->checkCollisions(player->sprite, sprite_x, sprite_y, &actual_x, &actual_y, &len);
 
-	if (sprite_x == actual_x && sprite_y == actual_y)
+	if (info == NULL && sprite_x == actual_x && sprite_y == actual_y)
 	{
 	}
 	else
@@ -63,7 +63,7 @@ void do_fish_hook_ticks(PlaydateAPI *pd, float dt)
 		{
 			pd->system->logToConsole("Retrieved %p from storage", retrieved_entity);
 			pd->system->logToConsole("Sprite @ %p", retrieved_entity->sprite);
-			destroy_fish(pd, retrieved_entity);
+			destroy_fish(pd,  retrieved_entity);
 		}
 	}
 

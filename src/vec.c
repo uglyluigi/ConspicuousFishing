@@ -2,6 +2,7 @@
 #include <math.h>
 
 #include "vec.h"
+#include "alloc.h"
 
 // A 2-dimensional vector
 // that supports basic vector operations like
@@ -9,7 +10,7 @@
 
 Vec2D *vec2d_new(float x, float y)
 {
-	Vec2D *vec2_ptr = (Vec2D *)malloc(sizeof(Vec2D));
+	Vec2D *vec2_ptr = MALLOC(1, Vec2D);
 	vec2_ptr->x = x;
 	vec2_ptr->y = y;
 	return vec2_ptr;
@@ -51,7 +52,7 @@ void vec2d_scale(const Vec2D *operand, const float scale, Vec2D *out)
 
 Vec2D *vec2d_copy(const Vec2D *src)
 {
-	Vec2D *vec2_ptr = (Vec2D *)malloc(sizeof(Vec2D));
+	Vec2D *vec2_ptr = MALLOC(1, Vec2D);
 	vec2_ptr->x = src->x;
 	vec2_ptr->y = src->y;
 	return vec2_ptr;
@@ -79,7 +80,7 @@ void cleanup_vec2d_api()
 
 void init_vec2d_api()
 {
-	vec2d = (_vec2d_api *)malloc(sizeof(_vec2d_api));
+	vec2d = MALLOC(1, _vec2d_api);
 	vec2d->add = &vec2d_add;
 	vec2d->copy = &vec2d_copy;
 	vec2d->negate = &vec2d_negate;

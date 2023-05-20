@@ -37,5 +37,6 @@ void init_storage();
 void clean_storage();
 void store_sprite(LCDSprite *sprite);
 LCDSprite *retrieve_sprite(LCDSprite *sprite);
+void store_fish(FishEntity *fish);
 
 #endif

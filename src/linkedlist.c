@@ -3,23 +3,29 @@
 #include <stdio.h>
 
 #include "linkedlist.h"
+#include "alloc.h"
 
+// Allocate a new LinkedList struct with a NULL head
+// and 0 size
 LinkedList *linkedlist_new(void)
 {
-	LinkedList *list = (LinkedList *)malloc(sizeof(LinkedList));
+	LinkedList *list = MALLOC(1, LinkedList);
 	list->head = NULL;
 	list->size = 0;
 	return list;
 }
 
+// Allocates a new node with data set to *data
+// and next set to NULL
 LinkedListNode *linkedlist_new_node(void *data)
 {
-	LinkedListNode *node = (LinkedListNode *)malloc(sizeof(LinkedListNode));
+	LinkedListNode *node = MALLOC(1, LinkedListNode);
 	node->data = data;
 	node->next = NULL;
 	return node;
 }
 
+// Get the last node in the linked list
 LinkedListNode *traverse(const LinkedList *list)
 {
 	LinkedListNode *current_node = list->head;
@@ -37,8 +43,16 @@ LinkedListNode *traverse(const LinkedList *list)
 	return current_node;
 }
 
+// Add an item to the end of the linked list,
+// allocating a new node and inserting
+// *data into it
 void linkedlist_add(LinkedList *list, void *data)
 {
+	if (data == NULL)
+	{
+		printf("Data cannot be null.");
+	}
+
 	LinkedListNode *node = linkedlist_new_node(data);
 
 	if (list->head == NULL)
@@ -171,9 +185,25 @@ void cleanup_linkedlist_api()
 	free(linked_list);
 }
 
+void for_each(LinkedList *list, void (*consumer)(void *item))
+{
+	if (list == NULL || consumer == NULL)
+	{
+		return;
+	}
+
+	LinkedListNode *current_node = list->head;
+
+	while (current_node != NULL)
+	{
+		consumer(current_node->data);
+		current_node = current_node->next;
+	}
+}
+
 void init_linkedlist_api()
 {
-	_linkedlist_api *api = (_linkedlist_api *)malloc(sizeof(_linkedlist_api));
+	_linkedlist_api *api = MALLOC(1, _linkedlist_api);
 	api->add = &linkedlist_add;
 	api->get = &linkedlist_get;
 	api->index_of = &linkedlist_index_of;
@@ -181,5 +211,6 @@ void init_linkedlist_api()
 	api->remove = &linkedlist_remove;
 	api->free = &linkedlist_free;
 	api->cleanup = &cleanup_linkedlist_api;
+	api->for_each = &for_each;
 	linked_list = api;
 }
