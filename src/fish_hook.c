@@ -24,6 +24,8 @@ void init_hook(PlaydateAPI *pd)
 	pd->sprite->setCollideRect(sprite, pd->sprite->getBounds(sprite));
 	fish_hook->sprite = sprite;
 	player = fish_hook;
+	Entity e = {.hook = player};
+	register_entity(kHookEntity, e);
 	pd->system->logToConsole("Hook sprite @ %p", player->sprite);
 }
 
@@ -56,8 +58,13 @@ void do_fish_hook_ticks(PlaydateAPI *pd, float dt)
 	else
 	{
 		pd->system->logToConsole("Collision w/sprite %p", info->other);
-		LCDSprite *gotten_sprite = (LCDSprite *)linked_list->get(sprite_storage, linked_list->index_of(sprite_storage, info->other));
-		pd->system->logToConsole("Retrieved %p from storage", gotten_sprite);
+		FishEntity *retrieved_entity = (FishEntity *)get_entity_by_sprite(kFishEntity, info->other);
+		if (retrieved_entity != NULL)
+		{
+			pd->system->logToConsole("Retrieved %p from storage", retrieved_entity);
+			pd->system->logToConsole("Sprite @ %p", retrieved_entity->sprite);
+			destroy_fish(pd, retrieved_entity);
+		}
 	}
 
 	if (current & kButtonLeft || pushed & kButtonLeft)

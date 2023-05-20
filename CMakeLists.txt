@@ -3,6 +3,7 @@ set(CMAKE_C_STANDARD 11)
 
 set(ENVSDK $ENV{PLAYDATE_SDK_PATH})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_BUILD_TYPE Debug)
 
 if (NOT ${ENVSDK} STREQUAL "")
 	# Convert path from Windows

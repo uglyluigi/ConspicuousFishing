@@ -6,8 +6,6 @@
 #include "alloc.h"
 #include "storage.h"
 
-// FishEntity* entity = (FishEntity)
-
 void register_entity(enum EntityKind kind, Entity entity)
 {
 	EntityPointer *entity_ptr_info = MALLOC(1, EntityPointer);
@@ -16,7 +14,7 @@ void register_entity(enum EntityKind kind, Entity entity)
 	linked_list->add(entity_storage, entity_ptr_info);
 }
 
-EntityPointer *get_entity_by_sprite(enum EntityKind kind, LCDSprite *sprite)
+void *get_entity_by_sprite(enum EntityKind kind, LCDSprite *sprite)
 {
 	int i = 0;
 	// this is probably VERY slow
@@ -34,7 +32,7 @@ EntityPointer *get_entity_by_sprite(enum EntityKind kind, LCDSprite *sprite)
 
 				if (fish->sprite == sprite)
 				{
-					return entity;
+					return fish;
 				}
 			}
 			break;
@@ -44,7 +42,7 @@ EntityPointer *get_entity_by_sprite(enum EntityKind kind, LCDSprite *sprite)
 
 				if (bubble_entity->sprite == sprite)
 				{
-					return entity;
+					return bubble_entity;
 				}
 			}
 			break;
@@ -54,7 +52,7 @@ EntityPointer *get_entity_by_sprite(enum EntityKind kind, LCDSprite *sprite)
 
 				if (hook->sprite == sprite)
 				{
-					return entity;
+					return hook;
 				}
 			}
 			break;
@@ -63,6 +61,8 @@ EntityPointer *get_entity_by_sprite(enum EntityKind kind, LCDSprite *sprite)
 				break;
 			}
 		}
+
+		i++;
 	}
 
 	return NULL;
@@ -87,6 +87,7 @@ void clean_storage()
 
 void store_sprite(LCDSprite *sprite)
 {
+	
 }
 
 LCDSprite *retrieve_sprite(LCDSprite *sprite)

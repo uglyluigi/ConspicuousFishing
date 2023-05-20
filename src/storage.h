@@ -8,6 +8,7 @@
 
 LinkedList *sprite_storage;
 LinkedList *entity_storage;
+LinkedList *fish_entities;
 
 enum EntityKind
 {
@@ -30,7 +31,7 @@ typedef struct
 } EntityPointer;
 
 void register_entity(enum EntityKind kind, Entity entity);
-EntityPointer *get_entity_by_sprite(enum EntityKind kind, LCDSprite *sprite);
+void *get_entity_by_sprite(enum EntityKind kind, LCDSprite *sprite);
 void deregister_entity(void *entity);
 void init_storage();
 void clean_storage();

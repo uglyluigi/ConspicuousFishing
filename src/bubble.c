@@ -50,6 +50,8 @@ bool spawn_bubble(PlaydateAPI *pd, LCDSprite *sprite)
 		pd->sprite->moveTo(sprite, sprite_x, sprite_y);
 		pd->sprite->addSprite(sprite);
 		bubble->sprite = sprite;
+		Entity e = {.bubble = bubble};
+		register_entity(kBubbleEntity, e);
 
 		// This is safe to do since has_space will set this with the first
 		// available index in bubbles, and it is always called before doing this
@@ -66,10 +68,7 @@ bool spawn_bubble(PlaydateAPI *pd, LCDSprite *sprite)
 
 void destroy_bubble(PlaydateAPI *pd, BubbleEntity *bubble)
 {
-	if (linked_list->remove(sprite_storage, bubble->sprite))
-	{
-		pd->system->logToConsole("Removed bubble from sprite list");
-	}
+	deregister_entity(bubble);
 	pd->sprite->removeSprite(bubble->sprite);
 	free(bubble->acceleration);
 	free(bubble->velocity);

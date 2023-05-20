@@ -2,15 +2,18 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
 #include "pd_api.h"
 #include "pd_api/pd_api_gfx.h"
 #include "pd_api/pd_api_sprite.h"
+
 #include "vec.h"
 #include "util.h"
 #include "bubble.h"
 #include "alloc.h"
 #include "fish.h"
 #include "const.h"
+#include "storage.h"
 
 FishEntity *fishes[MAX_FISH];
 
@@ -18,7 +21,7 @@ const char *get_sprite_for_fish_type(enum FishType type)
 {
 	return "img/moorish_idol.png";
 }
- 
+
 static int id_pool = 0;
 
 FishEntity *alloc_fish(PlaydateAPI *pd, const char *sprite_path)
@@ -43,6 +46,9 @@ FishEntity *alloc_fish(PlaydateAPI *pd, const char *sprite_path)
 	pd->sprite->addSprite(sprite);
 	fish->sprite = sprite;
 	fish->does_bob = true;
+
+	Entity e = {.fish = fish};
+	register_entity(kFishEntity, e);
 
 	return fish;
 }
@@ -166,4 +172,14 @@ void fish_tick(PlaydateAPI *pd, float dt, FishEntity *fishes[], const int num_fi
 			spawn_bubble(pd, fish->sprite);
 		}
 	}
+}
+
+void destroy_fish(PlaydateAPI* pd, FishEntity *entity)
+{
+	pd->sprite->removeSprite(entity->sprite);
+	free(entity->acceleration);
+	free(entity->velocity);
+	pd->sprite->freeSprite(entity->sprite);
+	free(entity);
+	deregister_entity(entity);
 }

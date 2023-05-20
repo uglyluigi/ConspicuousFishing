@@ -55,5 +55,6 @@ const char *get_sprite_for_fish_type(enum FishType type);
 FishEntity *alloc_fish(PlaydateAPI *pd, const char *sprite_path);
 void do_movement(PlaydateAPI *pd, float dt, FishEntity *fish);
 void fish_tick(PlaydateAPI *pd, float dt, FishEntity *fishes[], const int num_fish);
+void destroy_fish(PlaydateAPI *pd, FishEntity *entity);
 
 #endif
