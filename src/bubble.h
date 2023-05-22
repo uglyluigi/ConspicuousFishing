@@ -13,7 +13,6 @@ typedef struct BubbleEntity
 } BubbleEntity;
 
 extern int first_available_bubble_slot_index;
-extern BubbleEntity *bubbles[];
 
 bool has_space(void);
 bool spawn_bubble(PlaydateAPI *pd, LCDSprite *sprite);

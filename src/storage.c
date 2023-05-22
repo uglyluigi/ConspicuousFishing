@@ -20,7 +20,7 @@ void *get_entity_by_sprite(enum EntityKind kind, LCDSprite *sprite)
 	// this is probably VERY slow
 	EntityPointer *entity;
 
-	while ((entity = linked_list->get(entity_storage, i)) != NULL)
+	while ((entity = linked_list->get_at(entity_storage, i)) != NULL)
 	{
 		if (entity->kind == kind)
 		{
@@ -77,22 +77,18 @@ void init_storage()
 {
 	entity_storage = linked_list->new ();
 	fish_entities = linked_list->new ();
-	sprite_storage = linked_list->new ();
+	bubbles = linked_list->new ();
 }
 
 void clean_storage()
 {
-	linked_list->free(sprite_storage);
 	linked_list->free(entity_storage);
+	linked_list->free(fish_entities);
+	linked_list->free(bubbles);
 }
 
 void store_sprite(LCDSprite *sprite)
 {
-}
-
-LCDSprite *retrieve_sprite(LCDSprite *sprite)
-{
-	return (LCDSprite *)linked_list->get(sprite_storage, linked_list->index_of(sprite_storage, sprite));
 }
 
 void store_fish(FishEntity *fish)

@@ -170,6 +170,7 @@ void fish_tick(PlaydateAPI *pd, float dt, FishEntity *fishes[], const int num_fi
 		srand((unsigned)pd->system->getCurrentTimeMilliseconds());
 		if (rand() % 1000 <= 5)
 		{
+			pd->system->logToConsole("mogus");
 			spawn_bubble(pd, fish->sprite);
 		}
 	}

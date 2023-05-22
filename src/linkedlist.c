@@ -167,7 +167,11 @@ bool linkedlist_remove(LinkedList *list, void *data)
 
 void linkedlist_free_rec(LinkedListNode *current)
 {
-	if (current->next != NULL)
+	if (current == NULL)
+	{
+		return;
+	}
+	else
 	{
 		linkedlist_free_rec(current->next);
 	}
@@ -185,7 +189,7 @@ void cleanup_linkedlist_api()
 	free(linked_list);
 }
 
-void for_each(LinkedList *list, void (*consumer)(void *item))
+void linkedlist_for_each(LinkedList *list, void (*consumer)(void *item))
 {
 	if (list == NULL || consumer == NULL)
 	{
@@ -211,6 +215,38 @@ void init_linkedlist_api()
 	api->remove = &linkedlist_remove;
 	api->free = &linkedlist_free;
 	api->cleanup = &cleanup_linkedlist_api;
-	api->for_each = &for_each;
+	api->for_each = &linkedlist_for_each;
+	api->get_at = &linkedlist_get_at;
 	linked_list = api;
+}
+
+void *linkedlist_get_at(const LinkedList *list, size_t index)
+{
+	if (list == NULL)
+	{
+		return NULL;
+	}
+
+	LinkedListNode *current_node = list->head;
+	size_t i = 0;
+
+	while (i < index)
+	{
+		if (current_node == NULL)
+		{
+			return NULL;
+		}
+
+		current_node = current_node->next;
+		i += 1;
+	}
+
+	if (i == index)
+	{
+		return current_node->data;
+	}
+	else
+	{
+		return NULL;
+	}
 }

@@ -30,7 +30,6 @@ Vec2D *rand_pos()
 LCDSprite *new_sprite(PlaydateAPI *pd)
 {
 	LCDSprite *sprite = pd->sprite->newSprite();
-	linked_list->add(sprite_storage, sprite);
 	return sprite;
 }
 

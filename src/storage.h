@@ -6,9 +6,9 @@
 #include "fish.h"
 #include "fish_hook.h"
 
-LinkedList *sprite_storage;
 LinkedList *entity_storage;
 LinkedList *fish_entities;
+LinkedList *bubbles;
 
 enum EntityKind
 {

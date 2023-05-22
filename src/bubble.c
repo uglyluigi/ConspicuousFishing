@@ -11,24 +11,11 @@
 #include "linkedlist.h"
 #include "storage.h"
 
-int first_available_bubble_slot_index = 0;
-BubbleEntity *bubbles[MAX_BUBBLES] = {NULL, NULL, NULL, NULL, NULL};
-
 // Does the bubble array have space for another bubble?
 // Also sets the first_availble_bubble_slot_index
 bool has_space(void)
 {
-	for (int i = 0; i < MAX_BUBBLES; i++)
-	{
-		if (bubbles[i] == NULL)
-		{
-			first_available_bubble_slot_index = i;
-			return true;
-		}
-	}
-
-	first_available_bubble_slot_index = -1;
-	return false;
+	return true;
 }
 
 // Spawn a bubble using the provided sprite pointer as its initial position.
@@ -52,10 +39,10 @@ bool spawn_bubble(PlaydateAPI *pd, LCDSprite *sprite)
 		bubble->sprite = sprite;
 		Entity e = {.bubble = bubble};
 		register_entity(kBubbleEntity, e);
+		linked_list->add(bubbles, bubble);
 
 		// This is safe to do since has_space will set this with the first
 		// available index in bubbles, and it is always called before doing this
-		bubbles[first_available_bubble_slot_index] = bubble;
 		return true;
 	}
 	else
@@ -69,6 +56,7 @@ bool spawn_bubble(PlaydateAPI *pd, LCDSprite *sprite)
 void destroy_bubble(PlaydateAPI *pd, BubbleEntity *bubble)
 {
 	deregister_entity(bubble);
+	linked_list->remove(bubbles, bubble);
 	pd->sprite->removeSprite(bubble->sprite);
 	free(bubble->acceleration);
 	free(bubble->velocity);
@@ -78,9 +66,9 @@ void destroy_bubble(PlaydateAPI *pd, BubbleEntity *bubble)
 
 void do_bubble_ticks(PlaydateAPI *pd, float dt)
 {
-	for (int i = 0; i < MAX_BUBBLES; i++)
+	for (int i = 0; i < bubbles->size; i++)
 	{
-		BubbleEntity *bubble = bubbles[i];
+		BubbleEntity *bubble = linked_list->get_at(bubbles, i);
 
 		if (bubble != NULL)
 		{
@@ -93,7 +81,6 @@ void do_bubble_ticks(PlaydateAPI *pd, float dt)
 			{
 				pd->system->logToConsole("Destroying bubble #%d", i);
 				destroy_bubble(pd, bubble);
-				bubbles[i] = NULL;
 			}
 		}
 	}

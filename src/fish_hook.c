@@ -52,18 +52,21 @@ void do_fish_hook_ticks(PlaydateAPI *pd, float dt)
 	pd->sprite->getPosition(player->sprite, &sprite_x, &sprite_y);
 	SpriteCollisionInfo *info = pd->sprite->checkCollisions(player->sprite, sprite_x, sprite_y, &actual_x, &actual_y, &len);
 
-	if (info == NULL && sprite_x == actual_x && sprite_y == actual_y)
+	if (info != NULL && info->other != NULL)
 	{
-	}
-	else
-	{
-		pd->system->logToConsole("Collision w/sprite %p", info->other);
-		FishEntity *retrieved_entity = (FishEntity *)get_entity_by_sprite(kFishEntity, info->other);
-		if (retrieved_entity != NULL)
+		if (sprite_x == actual_x && sprite_y == actual_y)
 		{
-			pd->system->logToConsole("Retrieved %p from storage", retrieved_entity);
-			pd->system->logToConsole("Sprite @ %p", retrieved_entity->sprite);
-			destroy_fish(pd,  retrieved_entity);
+		}
+		else
+		{
+			pd->system->logToConsole("Collision w/sprite %p", info->other);
+			FishEntity *retrieved_entity = (FishEntity *)get_entity_by_sprite(kFishEntity, info->other);
+			if (retrieved_entity != NULL)
+			{
+				pd->system->logToConsole("Retrieved %p from storage", retrieved_entity);
+				pd->system->logToConsole("Sprite @ %p", retrieved_entity->sprite);
+				destroy_fish(pd, retrieved_entity);
+			}
 		}
 	}
 
