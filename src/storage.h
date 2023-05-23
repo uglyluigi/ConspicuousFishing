@@ -7,8 +7,7 @@
 #include "fish_hook.h"
 
 LinkedList *entity_storage;
-LinkedList *fish_entities;
-LinkedList *bubbles;
+LinkedList *bubble_storage;
 
 enum EntityKind
 {
@@ -30,13 +29,48 @@ typedef struct
 	enum EntityKind kind;
 } EntityPointer;
 
-void register_entity(enum EntityKind kind, Entity entity);
-void *get_entity_by_sprite(enum EntityKind kind, LCDSprite *sprite);
-void deregister_entity(void *entity);
+typedef struct _bubble_storage_api
+{
+	void (*add)(BubbleEntity *);
+	void (*remove)(BubbleEntity *);
+} _bubble_storage_api;
+
+_bubble_storage_api *bubble;
+
+typedef struct _entity_storage_api
+{
+	void (*add)(Entity, enum EntityKind);
+	void (*deregister)(Entity, enum EntityKind);
+	void *(*get_by_sprite)(enum EntityKind, LCDSprite *);
+} _entity_storage_api;
+
+_entity_storage_api *entity;
+
+typedef struct _storage_api
+{
+	_entity_storage_api *entity;
+	_bubble_storage_api *bubble;
+} _storage_api;
+
+_storage_api *storage;
+
+#undef entity;
+#undef bubble;
+
 void init_storage();
 void clean_storage();
-void store_sprite(LCDSprite *sprite);
-LCDSprite *retrieve_sprite(LCDSprite *sprite);
-void store_fish(FishEntity *fish);
+void init_storage_api();
+
+// new api
+// bubble
+void bubble_sto_add(BubbleEntity *bubble);
+void bubble_sto_remove(BubbleEntity *bubble);
+void init_bubble_storage_api();
+
+// entity
+void entity_sto_register(Entity entity, enum EntityKind kind);
+void entity_sto_deregister(Entity entity, enum EntityKind kind);
+void *entity_sto_get_entity_by_sprite(enum EntityKind kind, LCDSprite *sprite);
+void init_entity_storage_api();
 
 #endif

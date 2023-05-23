@@ -10,6 +10,14 @@
 LinkedList *linkedlist_new(void)
 {
 	LinkedList *list = MALLOC(1, LinkedList);
+	list->index = MALLOC(INDEX_MIN_SIZE, void *);
+
+	for (int i = 0; i < INDEX_MIN_SIZE; i++)
+	{
+		list->index[i] = NULL;
+	}
+
+	list->index_size = INDEX_MIN_SIZE;
 	list->head = NULL;
 	list->size = 0;
 	return list;
@@ -51,6 +59,7 @@ void linkedlist_add(LinkedList *list, void *data)
 	if (data == NULL)
 	{
 		printf("Data cannot be null.");
+		return;
 	}
 
 	LinkedListNode *node = linkedlist_new_node(data);
@@ -66,6 +75,13 @@ void linkedlist_add(LinkedList *list, void *data)
 	}
 
 	list->size += 1;
+
+	if (list->index_size < list->size)
+	{
+		linkedlist_index_grow(list, list->index_size * INDEX_GROW_FACTOR);
+	}
+
+	linkedlist_build_index(list);
 }
 
 int linkedlist_index_of(LinkedList *list, void *data)
@@ -89,27 +105,12 @@ int linkedlist_index_of(LinkedList *list, void *data)
 
 void *linkedlist_get(LinkedList *list, size_t index)
 {
-
-	if (index > list->size - 1)
+	if (index < 0 || index > list->size - 1)
 	{
-		// what do?
+		return NULL;
 	}
 
-	int current_index = 0;
-	LinkedListNode *current_node = list->head;
-
-	while (current_node != NULL)
-	{
-		if (current_index == index)
-		{
-			return current_node->data;
-		}
-
-		current_index++;
-		current_node = current_node->next;
-	}
-
-	return NULL;
+	return list->index[index];
 }
 
 bool linkedlist_remove(LinkedList *list, void *data)
@@ -148,6 +149,7 @@ bool linkedlist_remove(LinkedList *list, void *data)
 
 			free(old_ptr);
 			list->size -= 1;
+			linkedlist_build_index(list);
 			return true;
 		}
 
@@ -182,6 +184,7 @@ void linkedlist_free_rec(LinkedListNode *current)
 void linkedlist_free(LinkedList *list)
 {
 	linkedlist_free_rec(list->head);
+	free(list->index);
 }
 
 void cleanup_linkedlist_api()
@@ -248,5 +251,47 @@ void *linkedlist_get_at(const LinkedList *list, size_t index)
 	else
 	{
 		return NULL;
+	}
+}
+
+void linkedlist_index_grow(LinkedList *list, size_t new_size)
+{
+	if (new_size <= list->index_size)
+	{
+		return;
+	}
+
+	void **realloc_result = (void **)realloc(list->index, new_size * sizeof(void *));
+
+	if (realloc_result == NULL)
+	{
+		printf("Index reallocation failed");
+		exit(-1);
+	}
+	else
+	{
+		for (int i = list->size - 1; i < new_size - list->size - 1; i++)
+		{
+			realloc_result[i] = NULL;
+		}
+
+		list->index = realloc_result;
+		list->index_size = new_size;
+	}
+}
+
+void linkedlist_build_index(const LinkedList *list)
+{
+	LinkedListNode *current_node = list->head;
+
+	for (int i = 0; i < list->index_size; i++)
+	{
+		if (current_node != NULL)
+		{
+			list->index[i] = current_node->data;
+ 			current_node = current_node->next;
+		} else {
+			list->index[i] = NULL;
+		}
 	}
 }

@@ -75,6 +75,7 @@ static float dt = 0;
 static int update(void *userdata)
 {
 	PlaydateAPI *pd = userdata;
+	pd->system->logToConsole("Big chungy");
 
 	// setup delta time
 	dt = 0.001f * (pd->system->getCurrentTimeMilliseconds() - prev_time);
@@ -90,9 +91,32 @@ static int update(void *userdata)
 	float hook_x, hook_y;
 	pd->sprite->getPosition(player->sprite, &hook_x, &hook_y);
 
-	fish_tick(pd, dt, fishes, MAX_FISH);
+	for (int i = 0; i < entity_storage->size; i++)
+	{
+		EntityPointer *entity_ptr_info = linked_list->get(entity_storage, i);
+
+		pd->system->logToConsole("%d", entity_ptr_info->kind);
+
+		switch (entity_ptr_info->kind)
+		{
+		case kFishEntity:
+		{
+			pd->system->logToConsole("fish");
+			fish_tick(pd, dt, entity_ptr_info->data.fish);
+			break;
+		}
+		case kHookEntity:
+		{
+			pd->system->logToConsole("hook");
+			do_fish_hook_ticks(pd, dt, entity_ptr_info->data.hook);
+			break;
+		}
+		default:
+			break;
+		}
+	}
+
 	do_bubble_ticks(pd, dt);
-	do_fish_hook_ticks(pd, dt);
 	update_world(pd, dt, world, hook_x, hook_y);
 
 	return 1;

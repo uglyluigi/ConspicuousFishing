@@ -15,7 +15,7 @@ typedef struct FishHookEntity
 FishHookEntity *player;
 
 void init_hook(PlaydateAPI *pd);
-void do_fish_hook_ticks(PlaydateAPI *pd, float dt);
-void destroy_hook(PlaydateAPI *pd);
+void do_fish_hook_ticks(PlaydateAPI *pd, float dt, FishHookEntity *);
+void destroy_hook(PlaydateAPI *pd, FishHookEntity*);
 
 #endif

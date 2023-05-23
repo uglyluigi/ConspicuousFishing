@@ -48,8 +48,7 @@ FishEntity *alloc_fish(PlaydateAPI *pd, const char *sprite_path)
 	fish->does_bob = true;
 
 	Entity e = {.fish = fish};
-	register_entity(kFishEntity, e);
-	store_fish(fish);
+	storage->entity->add(e, kFishEntity);
 
 	return fish;
 }
@@ -125,64 +124,58 @@ void do_movement(PlaydateAPI *pd, float dt, FishEntity *fish)
 }
 
 // Do you like fish ticks?
-void fish_tick(PlaydateAPI *pd, float dt, FishEntity *fishes[], const int num_fish)
+void fish_tick(PlaydateAPI *pd, float dt, FishEntity *fish)
 {
-	for (int i = 0; i < fish_entities->size; i++)
+	if (fish->velocity->x > 0)
 	{
-		FishEntity *fish = linked_list->get(fish_entities, i);
+		fish->fishDirection = FacingRight;
+	}
+	else if (fish->velocity->x < 0)
+	{
+		fish->fishDirection = FacingLeft;
+	}
 
-		if (fish->velocity->x > 0)
-		{
-			fish->fishDirection = FacingRight;
-		}
-		else if (fish->velocity->x < 0)
-		{
-			fish->fishDirection = FacingLeft;
-		}
+	// For now this assumes all fish sprites face right by default
+	switch (fish->fishDirection)
+	{
+	case FacingLeft:
+		pd->sprite->setImageFlip(fish->sprite, kBitmapFlippedX);
+		break;
 
-		// For now this assumes all fish sprites face right by default
-		switch (fish->fishDirection)
-		{
-		case FacingLeft:
-			pd->sprite->setImageFlip(fish->sprite, kBitmapFlippedX);
-			break;
+	case FacingRight:
+		pd->sprite->setImageFlip(fish->sprite, kBitmapUnflipped);
+		break;
+	}
 
-		case FacingRight:
-			pd->sprite->setImageFlip(fish->sprite, kBitmapUnflipped);
-			break;
-		}
+	pd->sprite->addSprite(fish->sprite);
 
-		pd->sprite->addSprite(fish->sprite);
+	// Perform fish-based movement
+	do_movement(pd, dt, fish);
+	do_bubble_ticks(pd, dt);
 
-		// Perform fish-based movement
-		do_movement(pd, dt, fish);
-		do_bubble_ticks(pd, dt);
+	// Update collision for this fish
+	pd->sprite->setCollideRect(fish->sprite, pd->sprite->getBounds(fish->sprite));
 
-		// Update collision for this fish
-		pd->sprite->setCollideRect(fish->sprite, pd->sprite->getBounds(fish->sprite));
+	// Draw hitboxes if enabled
+	if (DRAW_HITBOXES)
+	{
+		draw_hitbox(pd, fish->sprite);
+	}
 
-		// Draw hitboxes if enabled
-		if (DRAW_HITBOXES)
-		{
-			draw_hitbox(pd, fish->sprite);
-		}
-
-		srand((unsigned)pd->system->getCurrentTimeMilliseconds());
-		if (rand() % 1000 <= 5)
-		{
-			pd->system->logToConsole("mogus");
-			spawn_bubble(pd, fish->sprite);
-		}
+	srand((unsigned)pd->system->getCurrentTimeMilliseconds());
+	if (rand() % 1000 <= 5)
+	{
+		spawn_bubble(pd, fish->sprite);
 	}
 }
 
 void destroy_fish(PlaydateAPI *pd, FishEntity *entity)
 {
+	Entity e = {.fish = entity};
+	storage->entity->deregister(e, kFishEntity);
 	pd->sprite->removeSprite(entity->sprite);
 	free(entity->acceleration);
 	free(entity->velocity);
 	pd->sprite->freeSprite(entity->sprite);
 	free(entity);
-	deregister_entity(entity);
-	linked_list->remove(fish_entities, entity);
 }
