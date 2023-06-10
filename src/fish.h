@@ -5,6 +5,7 @@
 
 #include "pd_api.h"
 #include "vec.h"
+#include "world.h"
 
 enum FishDirection
 {
@@ -44,17 +45,14 @@ typedef struct FishEntity
 	enum FishDirection fishDirection;
 	// A pointer to the sprite object for this fish
 	LCDSprite *sprite;
-	//
-	float y_offset;
+	Vec2D *world_pos;
 	bool does_bob;
 } FishEntity;
 
-extern FishEntity *fishes[];
-
 const char *get_sprite_for_fish_type(enum FishType type);
-FishEntity *alloc_fish(PlaydateAPI *pd, const char *sprite_path);
+FishEntity *alloc_fish(PlaydateAPI *pd, const char *sprite_path, float, float);
 void do_movement(PlaydateAPI *pd, float dt, FishEntity *fish);
-void fish_tick(PlaydateAPI *pd, float dt, FishEntity *fish);
+void fish_tick(PlaydateAPI *pd, float dt, const WorldInfo *world, FishEntity *fish);
 void destroy_fish(PlaydateAPI *pd, FishEntity *entity);
 
 #endif

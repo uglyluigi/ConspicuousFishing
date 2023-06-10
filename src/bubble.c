@@ -23,20 +23,18 @@ bool spawn_bubble(PlaydateAPI *pd, LCDSprite *sprite)
 	bubble->acceleration = vec2d->new (0.0f, 0.0f);
 	bubble->velocity = vec2d->new (0.0f, -10.0f);
 
-	LCDSprite *sprite = util->new_sprite(pd);
-	pd->sprite->setImage(sprite, alloc_bitmap(pd, "img/bubble.png"), kBitmapUnflipped);
-	pd->sprite->moveTo(sprite, sprite_x, sprite_y);
-	pd->sprite->addSprite(sprite);
-	bubble->sprite = sprite;
+	LCDSprite *bubble_sprite = util->new_sprite(pd);
+	pd->sprite->setImage(bubble_sprite, alloc_bitmap(pd, "img/bubble.png"), kBitmapUnflipped);
+	pd->sprite->moveTo(bubble_sprite, sprite_x, sprite_y);
+	pd->sprite->addSprite(bubble_sprite);
+	bubble->sprite = bubble_sprite;
 	Entity e = {.bubble = bubble};
-	register_entity(kBubbleEntity, e);
 	storage->bubble->add(bubble);
 }
 
 void destroy_bubble(PlaydateAPI *pd, BubbleEntity *bubble)
 {
 	Entity e = {.bubble = bubble};
-	storage->entity->deregister(e, kBubbleEntity);
 	storage->bubble->remove(bubble);
 	pd->sprite->removeSprite(bubble->sprite);
 	free(bubble->acceleration);

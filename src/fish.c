@@ -14,8 +14,7 @@
 #include "fish.h"
 #include "const.h"
 #include "storage.h"
-
-FishEntity *fishes[MAX_FISH];
+#include "world.h"
 
 const char *get_sprite_for_fish_type(enum FishType type)
 {
@@ -24,7 +23,7 @@ const char *get_sprite_for_fish_type(enum FishType type)
 
 static int id_pool = 0;
 
-FishEntity *alloc_fish(PlaydateAPI *pd, const char *sprite_path)
+FishEntity *alloc_fish(PlaydateAPI *pd, const char *sprite_path, float world_x, float world_y)
 {
 	FishEntity *fish = MALLOC(1, FishEntity);
 
@@ -37,18 +36,20 @@ FishEntity *alloc_fish(PlaydateAPI *pd, const char *sprite_path)
 	fish->acceleration = vec2d->new (0.0f, 0.0f);
 	fish->fishDirection = FacingRight;
 	fish->fishType = Goldfish;
-	fish->y_offset = 0.0f;
+	fish->world_pos = vec2d->new (world_x, world_y);
 
 	LCDSprite *sprite = util->new_sprite(pd);
 	pd->sprite->setImage(sprite, alloc_bitmap(pd, sprite_path), kBitmapUnflipped);
-	pd->sprite->moveTo(sprite, 200.0f, 200.0f);
+	// pd->sprite->moveTo(sprite, fish->world_pos->x, fish->world_pos->y);
 	pd->sprite->setCollideRect(sprite, pd->sprite->getBounds(sprite));
-	pd->sprite->addSprite(sprite);
+	// pd->sprite->addSprite(sprite);
 	fish->sprite = sprite;
 	fish->does_bob = true;
 
 	Entity e = {.fish = fish};
 	storage->entity->add(e, kFishEntity);
+	pd->sprite->addSprite(sprite);
+	pd->sprite->setVisible(sprite, false);
 
 	return fish;
 }
@@ -67,6 +68,7 @@ void do_movement(PlaydateAPI *pd, float dt, FishEntity *fish)
 	switch (fish->fishType)
 	{
 	case Goldfish:
+	{
 		pd->sprite->moveBy(fish->sprite, fish->velocity->x * dt, fish->velocity->y * dt);
 
 		if (LCD_COLUMNS - sprite_x < 50)
@@ -81,7 +83,8 @@ void do_movement(PlaydateAPI *pd, float dt, FishEntity *fish)
 		{
 			fish->acceleration->x = 0.0f;
 		}
-		break;
+	}
+	break;
 	case Jellyfish:
 	case Guppy:
 	case Betta:
@@ -124,7 +127,7 @@ void do_movement(PlaydateAPI *pd, float dt, FishEntity *fish)
 }
 
 // Do you like fish ticks?
-void fish_tick(PlaydateAPI *pd, float dt, FishEntity *fish)
+void fish_tick(PlaydateAPI *pd, float dt, const WorldInfo *world, FishEntity *fish)
 {
 	if (fish->velocity->x > 0)
 	{
@@ -147,7 +150,7 @@ void fish_tick(PlaydateAPI *pd, float dt, FishEntity *fish)
 		break;
 	}
 
-	pd->sprite->addSprite(fish->sprite);
+	// pd->sprite->addSprite(fish->sprite);
 
 	// Perform fish-based movement
 	do_movement(pd, dt, fish);
@@ -167,6 +170,16 @@ void fish_tick(PlaydateAPI *pd, float dt, FishEntity *fish)
 	{
 		spawn_bubble(pd, fish->sprite);
 	}
+
+	// Update the fish's sprite using the info in its world position
+	// this basically makes it so the fish will scroll onto/off of the
+	// screen after the player scrolls
+	// TODO clean this up, x values do not need to be updated here
+	float x, y;
+	pd->sprite->getPosition(fish->sprite, &x, &y);
+	pd->sprite->moveTo(fish->sprite, x, -fish->world_pos->y);
+	pd->sprite->getPosition(fish->sprite, &x, &y);
+	//pd->system->logToConsole("fish sprite is at (%f, %f)", fish->world_pos->x, fish->world_pos->y);
 }
 
 void destroy_fish(PlaydateAPI *pd, FishEntity *entity)
@@ -176,6 +189,7 @@ void destroy_fish(PlaydateAPI *pd, FishEntity *entity)
 	pd->sprite->removeSprite(entity->sprite);
 	free(entity->acceleration);
 	free(entity->velocity);
+	free(entity->world_pos);
 	pd->sprite->freeSprite(entity->sprite);
 	free(entity);
 }

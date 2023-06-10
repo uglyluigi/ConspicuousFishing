@@ -3,6 +3,8 @@
 
 #include "pd_api.h"
 #include "vec.h"
+#include "stdbool.h"
+#include "world.h"
 
 typedef struct
 {
@@ -14,6 +16,7 @@ typedef struct
 	float (*clamp)(float, float, float);
 	void (*cleanup)(void);
 	LCDSprite *(*new_sprite)(PlaydateAPI *);
+	bool (*is_visible)(const FishEntity, const WorldInfo *);
 } _util_api;
 
 _util_api *util;
@@ -28,5 +31,6 @@ int signf(float x);
 float clamp(float d, float min, float max);
 void cleanup_util_api();
 void init_util_api();
+bool is_visible(float y, const WorldInfo *world);
 
 #endif

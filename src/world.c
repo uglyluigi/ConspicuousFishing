@@ -4,18 +4,19 @@
 #include "math.h"
 #include "alloc.h"
 #include "world.h"
+#include "storage.h"
 
 WorldInfo *init_world(PlaydateAPI *pd, const char *path)
 {
 	WorldInfo *world = MALLOC(1, WorldInfo);
 	world->world_bg = alloc_bitmap(pd, path);
-	world->scroll_acceleration = vec2d->new(0.0f, 0.0f);
-	world->scroll_velocity = vec2d->new(0.0f, 0.0f);
-	world->world_pos = vec2d->new(0.0f, 0.0f);
+	world->scroll_acceleration = vec2d->new (0.0f, 0.0f);
+	world->scroll_velocity = vec2d->new (0.0f, 0.0f);
+	world->world_pos = vec2d->new (0.0f, 0.0f);
 
 	int width, height;
 	pd->graphics->getBitmapData(world->world_bg, &width, &height, NULL, NULL, NULL);
-	world->world_dimensions = vec2d->new((float)width, (float)height);
+	world->world_dimensions = vec2d->new ((float)width, (float)height);
 
 	return world;
 }
@@ -30,11 +31,17 @@ void destroy_world(PlaydateAPI *pd, WorldInfo *world)
 	free(world);
 }
 
-const ROWS_OVER_2 = LCD_ROWS / 2;
-
 float get_scroll_acceleration(float hook_y)
 {
-	return 100.0f * (hook_y - ROWS_OVER_2);
+	const float mapped_position = hook_y - (float)LCD_ROWS;
+
+	if ((mapped_position > 0.0f && world->world_pos->y == 0.0f) ||
+		(mapped_position < 0.0f && world->world_pos->y == world->world_dimensions->y - (float)LCD_ROWS))
+	{
+		return 0.0f;
+	}
+
+	return 8000.0f * -cosf(hook_y / 80);
 }
 
 void update_world(PlaydateAPI *pd, float dt, WorldInfo *world, float hook_x, float hook_y)
@@ -42,20 +49,66 @@ void update_world(PlaydateAPI *pd, float dt, WorldInfo *world, float hook_x, flo
 	world->scroll_velocity->x += world->scroll_acceleration->x * dt;
 	world->scroll_velocity->y += world->scroll_acceleration->y * dt;
 
-	world->world_pos->x += world->scroll_velocity->x * dt;
-	world->world_pos->y += world->scroll_velocity->y * dt;
+	// compute the world offsets to render the background properly
+	// and update all on-screen entities
+	float x_offset = world->scroll_velocity->x * dt;
+	float y_offset = world->scroll_velocity->y * dt;
 
+	// actually scroll the background bitmap
+	world->world_pos->x += x_offset;
+	world->world_pos->y += y_offset;
+
+	const min = -(world->world_dimensions->y - LCD_ROWS);
+	const max = 0.0f;
 	// Prevent scrolling past the top and bottom of the world bitmap
-	world->world_pos->y = clamp(world->world_pos->y, -(world->world_dimensions->y - LCD_ROWS), 0.0f);
 
-	// Things move up when their y acceleration is < 0,
-	// so it is necessary to negate here; without this
-	// it would go up when it's supposed to go down,
-	// and vice versa
+	if (world->world_pos->y <= min || world->world_pos->y >= max)
+	{
+		y_offset = 0.0f;
+	}
+
+	world->world_pos->y = clamp(world->world_pos->y, min, max);
+
+	for (int i = 0; i < entity_storage->size; i++)
+	{
+		EntityPointer *entity_ptr_info = linked_list->get(entity_storage, i);
+
+		switch (entity_ptr_info->kind)
+		{
+		case kFishEntity:
+		{
+			FishEntity *fish = entity_ptr_info->data.fish;
+
+			const float screen_top = 0.0f;
+			const float screen_bottom = -(float)LCD_ROWS;
+
+			// TODO maybe generalize this for things like map decorations
+			// and other things that will scroll with the world and become
+			// invisible/visible as they move off/on screen
+
+			// pd->system->logToConsole("%f < %f < %f", screen_bottom, fish->world_pos->y, screen_top);
+
+			if (fish->world_pos->y < screen_top && fish->world_pos->y > screen_bottom)
+			{
+				pd->sprite->setVisible(fish->sprite, true);
+			} else {
+				pd->sprite->setVisible(fish->sprite, false);
+			}
+
+			// Update the position of each fish 
+			// fish->world_pos->x += world->scroll_velocity->x * dt;
+			fish->world_pos->y += -y_offset;
+
+			pd->system->logToConsole("Scroll accel: (%f, %f) vel: (%f, %f)", world->scroll_acceleration->x, world->scroll_acceleration->y, world->scroll_velocity->x, world->scroll_velocity->y);
+			pd->system->logToConsole("Yworld=%f Yfish=%f", world->world_pos->y, fish->world_pos->y);
+			break;
+		}
+		default:
+			break;
+		}
+	}
 
 	float new_acceleration = get_scroll_acceleration(hook_y);
-
-	// pd->system->logToConsole("Hook: (%f, %f) new_accel: %f", hook_x, hook_y, new_acceleration);
 
 	if (fabsf(new_acceleration) > 80.0f)
 	{
@@ -64,6 +117,7 @@ void update_world(PlaydateAPI *pd, float dt, WorldInfo *world, float hook_x, flo
 	else
 	{
 		world->scroll_velocity->y = 0.0f;
+		world->scroll_acceleration->y = 0.0f;
 	}
 
 	// Reset the scroll speed if the hook passes through the middle of the screen

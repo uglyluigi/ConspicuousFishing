@@ -54,8 +54,8 @@ typedef struct _storage_api
 
 _storage_api *storage;
 
-#undef entity;
-#undef bubble;
+#undef entity
+#undef bubble
 
 void init_storage();
 void clean_storage();

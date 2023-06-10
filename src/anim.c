@@ -46,7 +46,7 @@ void sta_advance_by(PlaydateAPI *pd, BitmapTableAnimation *animation, float dt)
 	{
 		if (animation->loops)
 		{
-			if (animation->table_idx == animation->num_frames)
+			if (animation->table_idx == animation->num_frames - 1)
 			{
 				animation->animation_direction = -1;
 			}

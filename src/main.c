@@ -50,10 +50,15 @@ __declspec(dllexport)
 		init_hook(pd);
 		world = init_world(pd, "img/test_map.png");
 
+		alloc_fish(pd, "img/moorish_idol.png", 10, -400);
+		alloc_fish(pd, "img/moorish_idol.png", 5, -430);
+		alloc_fish(pd, "img/moorish_idol.png", 20, -460);
+		alloc_fish(pd, "img/moorish_idol.png", 70, -490);
+		alloc_fish(pd, "img/moorish_idol.png", 200, -520);
+		alloc_fish(pd, "img/moorish_idol.png", 50, -550);
+
 		// Note: If you set an update callback in the kEventInit handler, the system assumes the game is pure C and doesn't run any Lua code in the game
 		pd->system->setUpdateCallback(update, pd);
-
-		alloc_fish(pd, get_sprite_for_fish_type(Goldfish));
 	}
 
 	if (event == kEventTerminate)
@@ -75,7 +80,6 @@ static float dt = 0;
 static int update(void *userdata)
 {
 	PlaydateAPI *pd = userdata;
-	pd->system->logToConsole("Big chungy");
 
 	// setup delta time
 	dt = 0.001f * (pd->system->getCurrentTimeMilliseconds() - prev_time);
@@ -83,7 +87,6 @@ static int update(void *userdata)
 
 	pd->graphics->clear(kColorWhite);
 	pd->graphics->setFont(font);
-	// pd->graphics->drawText("Hello World!", strlen("Hello World!"), kASCIIEncoding, x, y);
 
 	pd->sprite->drawSprites();
 	pd->system->drawFPS(0, 0);
@@ -91,23 +94,21 @@ static int update(void *userdata)
 	float hook_x, hook_y;
 	pd->sprite->getPosition(player->sprite, &hook_x, &hook_y);
 
+	pd->system->logToConsole("%f", world->world_pos->y);
+
 	for (int i = 0; i < entity_storage->size; i++)
 	{
 		EntityPointer *entity_ptr_info = linked_list->get(entity_storage, i);
-
-		pd->system->logToConsole("%d", entity_ptr_info->kind);
 
 		switch (entity_ptr_info->kind)
 		{
 		case kFishEntity:
 		{
-			pd->system->logToConsole("fish");
-			fish_tick(pd, dt, entity_ptr_info->data.fish);
+			fish_tick(pd, dt, world, entity_ptr_info->data.fish);
 			break;
 		}
 		case kHookEntity:
 		{
-			pd->system->logToConsole("hook");
 			do_fish_hook_ticks(pd, dt, entity_ptr_info->data.hook);
 			break;
 		}

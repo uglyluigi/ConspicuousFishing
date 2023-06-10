@@ -17,7 +17,7 @@ void init_hook(PlaydateAPI *pd)
 	fish_hook->acceleration = vec2d->new (0.0f, 0.0f);
 	fish_hook->velocity = vec2d->new (0.0f, 0.0f);
 	LCDSprite *sprite = util->new_sprite(pd);
-	fish_hook->hook_animation = animation->new_consecutive(pd, "img/hook/rusty_hook/rusty_hook", 3, 0, 0.5f, true);
+	fish_hook->hook_animation = animation->new_consecutive(pd, "img/hook/nice_hook/nice_hook", 3, 0, 0.5f, true);
 	pd->sprite->setImage(sprite, pd->graphics->getTableBitmap(fish_hook->hook_animation->frames, 0), kBitmapUnflipped);
 	pd->sprite->moveTo(sprite, 100.0f, 100.0f);
 	pd->sprite->addSprite(sprite);
@@ -28,7 +28,7 @@ void init_hook(PlaydateAPI *pd)
 	storage->entity->add(e, kHookEntity);
 }
 
-void do_fish_hook_ticks(PlaydateAPI *pd, float dt, FishHookEntity* player)
+void do_fish_hook_ticks(PlaydateAPI *pd, float dt, FishHookEntity *player)
 {
 	PDButtons current;
 	PDButtons pushed;
@@ -59,7 +59,8 @@ void do_fish_hook_ticks(PlaydateAPI *pd, float dt, FishHookEntity* player)
 		else
 		{
 			pd->system->logToConsole("Collision w/sprite %p", info->other);
-			FishEntity *retrieved_entity = (FishEntity *)entity_sto_get_entity_by_sprite(kFishEntity, info->other);
+			FishEntity *retrieved_entity = storage->entity->get_by_sprite(kFishEntity, info->other);
+			
 			if (retrieved_entity != NULL)
 			{
 				pd->system->logToConsole("Retrieved %p from storage", retrieved_entity);
@@ -157,7 +158,7 @@ void do_fish_hook_ticks(PlaydateAPI *pd, float dt, FishHookEntity* player)
 	}
 }
 
-void destroy_hook(PlaydateAPI *pd, FishHookEntity* player)
+void destroy_hook(PlaydateAPI *pd, FishHookEntity *player)
 {
 	Entity e = {.hook = player};
 	storage->entity->deregister(e, kHookEntity);

@@ -17,8 +17,12 @@ void init_storage()
 
 void clean_storage()
 {
+	// TODO probably need to deallocate the EntityPointers inside of here
 	linked_list->free(entity_storage);
 	linked_list->free(bubble_storage);
+	free(entity);
+	free(bubble);
+	free(storage);
 }
 
 // Bubble storage methods
@@ -39,9 +43,6 @@ void init_bubble_storage_api()
 	api->remove = &bubble_sto_remove;
 	bubble = api;
 }
-
-#undef bubble_sto_add
-#undef bubble_sto_remove
 
 void entity_sto_register(Entity entity, enum EntityKind kind)
 {
@@ -161,10 +162,6 @@ void init_entity_storage_api()
 	api->get_by_sprite = &entity_sto_get_entity_by_sprite;
 	entity = api;
 }
-
-#undef entity_sto_register
-#undef entity_sto_deregister
-#undef entity_sto_get_entity_by_sprite
 
 void init_storage_api()
 {

@@ -6,6 +6,7 @@
 #include "linkedlist.h"
 #include "storage.h"
 #include "alloc.h"
+#include "stdbool.h"
 
 #include "util.h"
 
@@ -13,7 +14,6 @@
 
 #define MAX_FISH 1
 #define MAX_BUBBLES 5
-
 
 int rand_btwn(int nMin, int nMax)
 {
@@ -100,4 +100,10 @@ void init_util_api()
 	util->rand_btwn = &rand_btwn;
 	util->cleanup = &cleanup_util_api;
 	util->new_sprite = &new_sprite;
+	util->is_visible = &is_visible;
+}
+
+bool is_visible(float y, const WorldInfo *world)
+{
+	return -world->world_pos->y < -y && -y < -(world->world_pos->y + LCD_ROWS);
 }
