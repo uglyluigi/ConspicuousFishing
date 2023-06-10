@@ -50,7 +50,7 @@ __declspec(dllexport)
 		init_hook(pd);
 		world = init_world(pd, "img/test_map.png");
 
-		alloc_fish(pd, "img/moorish_idol.png", 10, -400);
+		alloc_fish(pd, "img/moorish_idol.png", 10, -50);
 		alloc_fish(pd, "img/moorish_idol.png", 5, -430);
 		alloc_fish(pd, "img/moorish_idol.png", 20, -460);
 		alloc_fish(pd, "img/moorish_idol.png", 70, -490);
@@ -94,8 +94,9 @@ static int update(void *userdata)
 	float hook_x, hook_y;
 	pd->sprite->getPosition(player->sprite, &hook_x, &hook_y);
 
-	pd->system->logToConsole("%f", world->world_pos->y);
+	// pd->system->logToConsole("%f", world->world_pos->y);
 
+	// Go through and update each entity that's in entity storage
 	for (int i = 0; i < entity_storage->size; i++)
 	{
 		EntityPointer *entity_ptr_info = linked_list->get(entity_storage, i);
@@ -104,11 +105,16 @@ static int update(void *userdata)
 		{
 		case kFishEntity:
 		{
-			fish_tick(pd, dt, world, entity_ptr_info->data.fish);
+			if (entity_ptr_info->data.fish->active)
+			{
+				// Update all on-screen fish
+				fish_tick(pd, dt, world, entity_ptr_info->data.fish);
+			}
 			break;
 		}
 		case kHookEntity:
 		{
+			// Update the hook based on user input
 			do_fish_hook_ticks(pd, dt, entity_ptr_info->data.hook);
 			break;
 		}
@@ -117,7 +123,10 @@ static int update(void *userdata)
 		}
 	}
 
+	// Update all spawned bubbles
 	do_bubble_ticks(pd, dt);
+	// Update the position of the world background
+	// and sprites that scroll with the map
 	update_world(pd, dt, world, hook_x, hook_y);
 
 	return 1;

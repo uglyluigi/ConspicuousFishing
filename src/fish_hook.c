@@ -11,20 +11,34 @@
 #include "const.h"
 #include "storage.h"
 
+// Initialize the hook which is basically the player
 void init_hook(PlaydateAPI *pd)
 {
+	// Allocate a new fish entity struct in the heap
 	FishHookEntity *fish_hook = MALLOC(1, FishHookEntity);
+	// Set its initial acceleration to 0 in both directions
 	fish_hook->acceleration = vec2d->new (0.0f, 0.0f);
+	// Same with its initial velocity
 	fish_hook->velocity = vec2d->new (0.0f, 0.0f);
+	// Create new sprite pointer
 	LCDSprite *sprite = util->new_sprite(pd);
+	// Create new animation struct
 	fish_hook->hook_animation = animation->new_consecutive(pd, "img/hook/nice_hook/nice_hook", 3, 0, 0.5f, true);
+	// Load the first frame of the animation as the hook's sprite
 	pd->sprite->setImage(sprite, pd->graphics->getTableBitmap(fish_hook->hook_animation->frames, 0), kBitmapUnflipped);
+	// Set the hook's default position
 	pd->sprite->moveTo(sprite, 100.0f, 100.0f);
+	// Add the hook sprite to the sprite list
 	pd->sprite->addSprite(sprite);
+	// Set the collision of the hook to the bounds of its sprite
 	pd->sprite->setCollideRect(sprite, pd->sprite->getBounds(sprite));
+	// Put the sprite pointer into the struct
 	fish_hook->sprite = sprite;
+	// Set the global 'player' variable to this hook
 	player = fish_hook;
+	// Put the hook into the entity union
 	Entity e = {.hook = player};
+	// Add the hook to entity storage
 	storage->entity->add(e, kHookEntity);
 }
 
@@ -72,13 +86,13 @@ void do_fish_hook_ticks(PlaydateAPI *pd, float dt, FishHookEntity *player)
 
 	if (current & kButtonLeft || pushed & kButtonLeft)
 	{
-		pd->system->logToConsole("Left");
-		player->acceleration->x = -10000.0f * dt;
+		//pd->system->logToConsole("Left");
+		player->acceleration->x = -100.0f;
 	}
 
 	if (released & kButtonLeft)
 	{
-		pd->system->logToConsole("Released left");
+		//pd->system->logToConsole("Released left");
 
 		if (player->acceleration->x < 0)
 		{
@@ -88,16 +102,16 @@ void do_fish_hook_ticks(PlaydateAPI *pd, float dt, FishHookEntity *player)
 
 	if (current & kButtonRight || pushed & kButtonRight)
 	{
-		pd->system->logToConsole("Right");
+		//pd->system->logToConsole("Right");
 		// TODO no need to multiply by dt here; dt is applied
 		// when the velocity/position are updated using the
 		// current acceleration
-		player->acceleration->x = 10000.0f * dt;
+		player->acceleration->x = 100.0f;
 	}
 
 	if (released & kButtonRight)
 	{
-		pd->system->logToConsole("Released right");
+		//pd->system->logToConsole("Released right");
 
 		if (player->acceleration->x > 0)
 		{

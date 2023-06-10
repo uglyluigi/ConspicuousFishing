@@ -37,6 +37,7 @@ FishEntity *alloc_fish(PlaydateAPI *pd, const char *sprite_path, float world_x, 
 	fish->fishDirection = FacingRight;
 	fish->fishType = Goldfish;
 	fish->world_pos = vec2d->new (world_x, world_y);
+	fish->active = false;
 
 	LCDSprite *sprite = util->new_sprite(pd);
 	pd->sprite->setImage(sprite, alloc_bitmap(pd, sprite_path), kBitmapUnflipped);
@@ -49,6 +50,7 @@ FishEntity *alloc_fish(PlaydateAPI *pd, const char *sprite_path, float world_x, 
 	Entity e = {.fish = fish};
 	storage->entity->add(e, kFishEntity);
 	pd->sprite->addSprite(sprite);
+	pd->sprite->moveTo(fish->sprite, world_x, world_y);
 	pd->sprite->setVisible(sprite, false);
 
 	return fish;
@@ -69,6 +71,7 @@ void do_movement(PlaydateAPI *pd, float dt, FishEntity *fish)
 	{
 	case Goldfish:
 	{
+		// Perform the fish's automatic, side-to-side movement
 		pd->sprite->moveBy(fish->sprite, fish->velocity->x * dt, fish->velocity->y * dt);
 
 		if (LCD_COLUMNS - sprite_x < 50)
@@ -93,6 +96,7 @@ void do_movement(PlaydateAPI *pd, float dt, FishEntity *fish)
 	}
 
 	// Apply a periodic "bobbing" effect to the fish if necessary
+	// TODO fix this as it does not work with the new world scrolling
 	if (fish->does_bob)
 	{
 		float time = pd->system->getElapsedTime();
@@ -129,6 +133,7 @@ void do_movement(PlaydateAPI *pd, float dt, FishEntity *fish)
 // Do you like fish ticks?
 void fish_tick(PlaydateAPI *pd, float dt, const WorldInfo *world, FishEntity *fish)
 {
+	// Update the fish's orientation based on the velocity
 	if (fish->velocity->x > 0)
 	{
 		fish->fishDirection = FacingRight;
@@ -165,6 +170,7 @@ void fish_tick(PlaydateAPI *pd, float dt, const WorldInfo *world, FishEntity *fi
 		draw_hitbox(pd, fish->sprite);
 	}
 
+	// Spawn a bubble maybe
 	srand((unsigned)pd->system->getCurrentTimeMilliseconds());
 	if (rand() % 1000 <= 5)
 	{
@@ -179,7 +185,7 @@ void fish_tick(PlaydateAPI *pd, float dt, const WorldInfo *world, FishEntity *fi
 	pd->sprite->getPosition(fish->sprite, &x, &y);
 	pd->sprite->moveTo(fish->sprite, x, -fish->world_pos->y);
 	pd->sprite->getPosition(fish->sprite, &x, &y);
-	//pd->system->logToConsole("fish sprite is at (%f, %f)", fish->world_pos->x, fish->world_pos->y);
+	// pd->system->logToConsole("fish sprite is at (%f, %f)", fish->world_pos->x, fish->world_pos->y);
 }
 
 void destroy_fish(PlaydateAPI *pd, FishEntity *entity)

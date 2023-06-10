@@ -33,8 +33,12 @@ void destroy_world(PlaydateAPI *pd, WorldInfo *world)
 
 float get_scroll_acceleration(float hook_y)
 {
+	// Put the hook on a grid with 0 at the origin, 120 at the top and -120 at the bottom
 	const float mapped_position = hook_y - (float)LCD_ROWS;
 
+	// Negate the acceleration if we're at the top or bottom of the map
+	// and the hook is in the upper half of the screen / lower half of the screen,
+	// respectively
 	if ((mapped_position > 0.0f && world->world_pos->y == 0.0f) ||
 		(mapped_position < 0.0f && world->world_pos->y == world->world_dimensions->y - (float)LCD_ROWS))
 	{
@@ -46,6 +50,7 @@ float get_scroll_acceleration(float hook_y)
 
 void update_world(PlaydateAPI *pd, float dt, WorldInfo *world, float hook_x, float hook_y)
 {
+	// Apply the result of acceleration over this dt
 	world->scroll_velocity->x += world->scroll_acceleration->x * dt;
 	world->scroll_velocity->y += world->scroll_acceleration->y * dt;
 
@@ -60,13 +65,15 @@ void update_world(PlaydateAPI *pd, float dt, WorldInfo *world, float hook_x, flo
 
 	const min = -(world->world_dimensions->y - LCD_ROWS);
 	const max = 0.0f;
-	// Prevent scrolling past the top and bottom of the world bitmap
 
+	// Prevent things that scroll along with the map using this offset
+	// from continuing to scroll when the bottom or top of the map was reached
 	if (world->world_pos->y <= min || world->world_pos->y >= max)
 	{
 		y_offset = 0.0f;
 	}
 
+	// Prevent scrolling past the top and bottom of the world bitmap
 	world->world_pos->y = clamp(world->world_pos->y, min, max);
 
 	for (int i = 0; i < entity_storage->size; i++)
@@ -88,19 +95,24 @@ void update_world(PlaydateAPI *pd, float dt, WorldInfo *world, float hook_x, flo
 
 			// pd->system->logToConsole("%f < %f < %f", screen_bottom, fish->world_pos->y, screen_top);
 
+			// Set fish that are on-screen to visible and off-screen to invisible
 			if (fish->world_pos->y < screen_top && fish->world_pos->y > screen_bottom)
 			{
+				fish->active = true;
 				pd->sprite->setVisible(fish->sprite, true);
-			} else {
+			}
+			else
+			{
+				fish->active = false;
 				pd->sprite->setVisible(fish->sprite, false);
 			}
 
-			// Update the position of each fish 
+			// Update the position of each fish
 			// fish->world_pos->x += world->scroll_velocity->x * dt;
 			fish->world_pos->y += -y_offset;
 
-			pd->system->logToConsole("Scroll accel: (%f, %f) vel: (%f, %f)", world->scroll_acceleration->x, world->scroll_acceleration->y, world->scroll_velocity->x, world->scroll_velocity->y);
-			pd->system->logToConsole("Yworld=%f Yfish=%f", world->world_pos->y, fish->world_pos->y);
+			// pd->system->logToConsole("Scroll accel: (%f, %f) vel: (%f, %f)", world->scroll_acceleration->x, world->scroll_acceleration->y, world->scroll_velocity->x, world->scroll_velocity->y);
+			// pd->system->logToConsole("Yworld=%f Yfish=%f", world->world_pos->y, fish->world_pos->y);
 			break;
 		}
 		default:
@@ -108,13 +120,16 @@ void update_world(PlaydateAPI *pd, float dt, WorldInfo *world, float hook_x, flo
 		}
 	}
 
+	// Get the acceleration based on the hook's y-position
 	float new_acceleration = get_scroll_acceleration(hook_y);
 
-	if (fabsf(new_acceleration) > 80.0f)
+	// If the magnitude of the scroll acceleration is > 90,
+	// cap it by negating the new acceleration.
+	if (fabsf(new_acceleration) > 90.0f)
 	{
 		world->scroll_acceleration->y = -new_acceleration;
 	}
-	else
+	else // If the acceleration is <=90, stop moving the screen so it's not always moving
 	{
 		world->scroll_velocity->y = 0.0f;
 		world->scroll_acceleration->y = 0.0f;
@@ -127,5 +142,6 @@ void update_world(PlaydateAPI *pd, float dt, WorldInfo *world, float hook_x, flo
 	}
 
 	pd->graphics->setDrawMode(kDrawModeNXOR);
+	// Draw the updated word background bitmap
 	pd->graphics->drawBitmap(world->world_bg, world->world_pos->x, world->world_pos->y, kBitmapUnflipped);
 }

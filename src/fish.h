@@ -47,6 +47,7 @@ typedef struct FishEntity
 	LCDSprite *sprite;
 	Vec2D *world_pos;
 	bool does_bob;
+	bool active;
 } FishEntity;
 
 const char *get_sprite_for_fish_type(enum FishType type);
