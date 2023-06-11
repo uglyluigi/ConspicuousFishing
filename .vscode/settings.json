@@ -7,6 +7,7 @@
 		"fish_hook.h": "c",
 		"anim.h": "c",
 		"pd_api_sprite.h": "c",
-		"util.h": "c"
+		"util.h": "c",
+		"update_funcs.h": "c"
 	}
 }

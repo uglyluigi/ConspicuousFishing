@@ -32,8 +32,8 @@ set(PLAYDATE_GAME_DEVICE ConspicuousFishing_SIM)
 
 project(${PLAYDATE_GAME_NAME} C ASM)
 
-FILE(GLOB SOURCES src/*.c)
-FILE(GLOB HEADERS src/*.h)
+FILE(GLOB SOURCES src/*.c src/entity/*.c)
+FILE(GLOB HEADERS src/*.h src/entity/*.h)
 
 if (TOOLCHAIN STREQUAL "armgcc")
 	add_executable(${PLAYDATE_GAME_DEVICE} ${SOURCES} ${HEADERS})

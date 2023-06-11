@@ -16,7 +16,6 @@ typedef struct
 	float (*clamp)(float, float, float);
 	void (*cleanup)(void);
 	LCDSprite *(*new_sprite)(PlaydateAPI *);
-	bool (*is_visible)(const FishEntity, const WorldInfo *);
 } _util_api;
 
 _util_api *util;

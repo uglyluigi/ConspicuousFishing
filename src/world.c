@@ -78,46 +78,36 @@ void update_world(PlaydateAPI *pd, float dt, WorldInfo *world, float hook_x, flo
 
 	for (int i = 0; i < entity_storage->size; i++)
 	{
-		EntityPointer *entity_ptr_info = linked_list->get(entity_storage, i);
+		Entity *ent = linked_list->get(entity_storage, i);
 
-		switch (entity_ptr_info->kind)
+		const float screen_top = 0.0f;
+		const float screen_bottom = -(float)LCD_ROWS;
+
+		// TODO maybe generalize this for things like map decorations
+		// and other things that will scroll with the world and become
+		// invisible/visible as they move off/on screen
+
+		// pd->system->logToConsole("%f < %f < %f", screen_bottom, fish->world_pos->y, screen_top);
+
+		// Set fish that are on-screen to visible and off-screen to invisible
+
+		if (ent->entityType != Entity_Hook)
 		{
-		case kFishEntity:
-		{
-			FishEntity *fish = entity_ptr_info->data.fish;
-
-			const float screen_top = 0.0f;
-			const float screen_bottom = -(float)LCD_ROWS;
-
-			// TODO maybe generalize this for things like map decorations
-			// and other things that will scroll with the world and become
-			// invisible/visible as they move off/on screen
-
-			// pd->system->logToConsole("%f < %f < %f", screen_bottom, fish->world_pos->y, screen_top);
-
-			// Set fish that are on-screen to visible and off-screen to invisible
-			if (fish->world_pos->y < screen_top && fish->world_pos->y > screen_bottom)
+			if (ent->world_pos->y < screen_top && ent->world_pos->y > screen_bottom)
 			{
-				fish->active = true;
-				pd->sprite->setVisible(fish->sprite, true);
+				ent->active = true;
+				pd->sprite->setVisible(ent->sprite, true);
 			}
 			else
 			{
-				fish->active = false;
-				pd->sprite->setVisible(fish->sprite, false);
+				ent->active = false;
+				pd->sprite->setVisible(ent->sprite, false);
 			}
-
-			// Update the position of each fish
-			// fish->world_pos->x += world->scroll_velocity->x * dt;
-			fish->world_pos->y += -y_offset;
-
-			// pd->system->logToConsole("Scroll accel: (%f, %f) vel: (%f, %f)", world->scroll_acceleration->x, world->scroll_acceleration->y, world->scroll_velocity->x, world->scroll_velocity->y);
-			// pd->system->logToConsole("Yworld=%f Yfish=%f", world->world_pos->y, fish->world_pos->y);
-			break;
 		}
-		default:
-			break;
-		}
+
+		// Update the position of each fish
+		// fish->world_pos->x += world->scroll_velocity->x * dt;
+		ent->world_pos->y += -y_offset;
 	}
 
 	// Get the acceleration based on the hook's y-position

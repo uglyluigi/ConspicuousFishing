@@ -100,10 +100,5 @@ void init_util_api()
 	util->rand_btwn = &rand_btwn;
 	util->cleanup = &cleanup_util_api;
 	util->new_sprite = &new_sprite;
-	util->is_visible = &is_visible;
-}
-
-bool is_visible(float y, const WorldInfo *world)
-{
-	return -world->world_pos->y < -y && -y < -(world->world_pos->y + LCD_ROWS);
+	util->draw_hitbox = &draw_hitbox;
 }
